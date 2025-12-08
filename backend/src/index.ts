@@ -3,6 +3,7 @@ import { OAuth2Client } from 'google-auth-library';
 import cookieParser from 'cookie-parser';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
+import cors from 'cors';
 
 dotenv.config();
 
@@ -14,6 +15,10 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your-very-secret-key';
 const client = new OAuth2Client(GOOGLE_CLIENT_ID);
 
 app.use(cookieParser());
+app.use(cors({
+  origin: process.env.FRONTEND_ORIGIN || 'http://localhost:5173',
+  credentials: true,
+}));
 
 app.get('/', (req, res) => {
   const token = req.cookies.token;
@@ -64,6 +69,21 @@ app.get('/auth/callback', async (req, res) => {
     res.json({ message: 'Google token verified, JWT issued', user: jwtPayload });
   } catch (err) {
     res.status(401).json({ error: 'Invalid Google token', details: err instanceof Error ? err.message : err });
+  }
+});
+
+app.get('/auth/check', (req, res) => {
+  const token = req.cookies.token;
+  console.log('Checking auth token:', token);
+  if (!token) {
+    return res.status(401).json({ authenticated: false, error: 'No token provided' });
+  }
+  try {
+    const user = jwt.verify(token, JWT_SECRET);
+    res.json({ authenticated: true, user });
+    console.log('Response:', { authenticated: true, user });
+  } catch (err) {
+    return res.status(401).json({ authenticated: false, error: 'Invalid token' });
   }
 });
 
