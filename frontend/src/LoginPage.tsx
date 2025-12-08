@@ -1,32 +1,22 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { GoogleLogin } from "@react-oauth/google";
+
+const BACKEND_AUTH_URL = import.meta.env.VITE_OAUTH_CALLBACK_URL;
 
 const LoginPage: React.FC = () => {
-  const navigate = useNavigate();
-
-  const handleLogin = () => {
-    // Simulate login and redirect to table view
-    navigate("/table");
-  };
-
   return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100vh" }}>
-      <h1>Welcome to Sealed League Tracker</h1>
-      <button
-        style={{
-          padding: "10px 20px",
-          fontSize: "16px",
-          backgroundColor: "#4285F4",
-          color: "white",
-          border: "none",
-          borderRadius: "4px",
-          cursor: "pointer",
-          marginTop: "20px"
+    <div className="flex flex-col items-center justify-center h-screen">
+      <h1 className="mb-8 text-2xl font-bold">
+        Welcome to Sealed League Tracker
+      </h1>
+      <GoogleLogin
+        onSuccess={(credentialResponse) => {
+          window.location.href = `${BACKEND_AUTH_URL}?token=${credentialResponse.credential}`;
         }}
-        onClick={handleLogin}
-      >
-        Login with Google
-      </button>
+        onError={() => {
+          alert("Login Failed");
+        }}
+      />
     </div>
   );
 };
