@@ -1,0 +1,74 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum LeagueStatus {
+  PENDING
+  STARTED
+  FINISHED
+}
+
+enum MatchOutcome {
+  TBD
+  PLAYER1_WINS
+  PLAYER2_WINS
+  DRAW
+}
+
+enum UserPrivileges {
+  USER
+  ADMIN
+}
+
+model User {
+  id         Int      @id @default(autoincrement())
+  name       String
+  email      String   @unique
+  privileges UserPrivileges
+
+  // Relations
+  leagues    League[]        @relation("LeagueOwner")
+  matchesAsPlayer1 Match[]   @relation("Player1Matches")
+  matchesAsPlayer2 Match[]   @relation("Player2Matches")
+}
+
+model League {
+  id          Int      @id @default(autoincrement())
+  name        String
+  status      LeagueStatus
+  createdAt   DateTime @default(now())
+  startDate   DateTime?
+  ownerId     Int
+
+  // Relations
+  owner       User     @relation("LeagueOwner", fields: [ownerId], references: [id])
+  matches     Match[]  @relation("LeagueMatches")
+}
+
+model Match {
+  id         Int      @id @default(autoincrement())
+  leagueId   Int
+  player1Id  Int
+  player2Id  Int
+  score1     Int?
+  score2     Int?
+  outcome    MatchOutcome
+  date       DateTime?
+  round      Int
+
+  // Relations
+  league     League   @relation("LeagueMatches", fields: [leagueId], references: [id])
+  player1    User     @relation("Player1Matches", fields: [player1Id], references: [id])
+  player2    User     @relation("Player2Matches", fields: [player2Id], references: [id])
+}
