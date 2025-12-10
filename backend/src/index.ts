@@ -4,6 +4,8 @@ import cookieParser from 'cookie-parser';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import cors from 'cors';
+import { PrismaPg } from '@prisma/adapter-pg'
+import { PrismaClient } from './generated/prisma/client.js';
 
 dotenv.config();
 
@@ -13,6 +15,9 @@ const PORT = process.env.PORT || 3001;
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || 'MY_GOOGLE_CLIENT_ID';
 const JWT_SECRET = process.env.JWT_SECRET || 'your-very-secret-key';
 const client = new OAuth2Client(GOOGLE_CLIENT_ID);
+const DATABASE_URL = process.env.DATABASE_URL || '';
+const adapter = new PrismaPg({connectionString: process.env.DATABASE_URL});
+const prisma = new PrismaClient({adapter});
 
 app.use(cookieParser());
 app.use(cors({
@@ -84,6 +89,84 @@ app.get('/auth/check', (req, res) => {
     console.log('Response:', { authenticated: true, user });
   } catch (err) {
     return res.status(401).json({ authenticated: false, error: 'Invalid token' });
+  }
+});
+
+app.get('/league/:id', async (req, res) => {
+  const leagueId = parseInt(req.params.id, 10);
+  if (isNaN(leagueId)) {
+    return res.status(400).json({ error: 'Invalid league id' });
+  }
+  try {
+    // Get league info and matches
+    const league = await prisma.league.findUnique({
+      where: { id: leagueId },
+      include: {
+        matches: {
+          include: {
+            player1: true,
+            player2: true,
+          },
+        },
+      },
+    });
+    if (!league) {
+      return res.status(404).json({ error: 'League not found' });
+    }
+    // Build standings
+    const standings: Record<string, any> = {};
+    for (const match of league.matches) {
+      // Only count matches with both players and a decided outcome
+      if (match.outcome === 'TBD') continue;
+      const players = [match.player1, match.player2];
+      for (const player of players) {
+        if (!player) continue;
+        if (!standings[player.id]) {
+          standings[player.id] = {
+            name: player.name,
+            gamesPlayed: 0,
+            wins: 0,
+            draws: 0,
+            losses: 0,
+            points: 0,
+          };
+        }
+        standings[player.id].gamesPlayed++;
+      }
+      // Outcome logic
+      if (match.outcome === 'PLAYER1_WINS') {
+        standings[match.player1Id].wins++;
+        standings[match.player1Id].points += 3;
+        standings[match.player2Id].losses++;
+      } else if (match.outcome === 'PLAYER2_WINS') {
+        standings[match.player2Id].wins++;
+        standings[match.player2Id].points += 3;
+        standings[match.player1Id].losses++;
+      } else if (match.outcome === 'DRAW') {
+        standings[match.player1Id].draws++;
+        standings[match.player2Id].draws++;
+        standings[match.player1Id].points++;
+        standings[match.player2Id].points++;
+      }
+    }
+    // Sort matches by round ascending
+    const sortedMatches = [...league.matches].sort((a, b) => (a.round ?? 0) - (b.round ?? 0));
+    // Convert standings to array and sort by points descending
+    const standingsArr = Object.values(standings).sort((a, b) => b.points - a.points);
+    res.json({
+      league: {
+        id: league.id,
+        name: league.name,
+        status: league.status,
+        createdAt: league.createdAt,
+        startDate: league.startDate,
+        ownerId: league.ownerId,
+      },
+      matches: sortedMatches,
+      standings: standingsArr,
+    });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch league', details: err instanceof Error ? err.message : err });
   }
 });
 
