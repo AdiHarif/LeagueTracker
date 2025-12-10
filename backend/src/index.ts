@@ -55,10 +55,23 @@ app.get('/auth/callback', async (req, res) => {
     if (!payload || !payload.email) {
       return res.status(400).json({ error: 'Invalid Google payload' });
     }
-    // Create JWT with user info (customize claims as needed)
+    // Fetch user from DB
+    let dbUser = await prisma.user.findUnique({ where: { email: payload.email } });
+    // If user does not exist, create it
+    if (!dbUser) {
+      dbUser = await prisma.user.create({
+        data: {
+          name: payload.name || payload.email.split('@')[0] || '',
+          email: payload.email,
+          privileges: 'USER',
+        },
+      });
+    }
+    // Create JWT with user info and DB id
     const jwtPayload = {
+      id: dbUser.id,
       email: payload.email,
-      name: payload.name,
+      name: dbUser.name,
       picture: payload.picture,
       sub: payload.sub,
     };
@@ -167,6 +180,42 @@ app.get('/league/:id', async (req, res) => {
     });
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch league', details: err instanceof Error ? err.message : err });
+  }
+});
+
+app.get('/my-matches', async (req, res) => {
+  const token = req.cookies.token;
+  if (!token) {
+    return res.status(401).json({ error: 'Unauthorized: No token provided' });
+  }
+  let user: any;
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+    if (typeof decoded === 'string' || !('id' in decoded)) {
+      return res.status(401).json({ error: 'Unauthorized: Invalid token payload' });
+    }
+    user = decoded as { id: number };
+  } catch (err) {
+    return res.status(401).json({ error: 'Unauthorized: Invalid token' });
+  }
+  try {
+    const matches = await prisma.match.findMany({
+      where: {
+        OR: [
+          { player1Id: user.id },
+          { player2Id: user.id },
+        ],
+      },
+      include: {
+        league: true,
+        player1: true,
+        player2: true,
+      },
+    });
+    const sortedMatches = matches.sort((a, b) => (a.round ?? 0) - (b.round ?? 0));
+    res.json({ matches: sortedMatches });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch matches', details: err instanceof Error ? err.message : err });
   }
 });
 

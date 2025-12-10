@@ -1,37 +1,27 @@
 import React from "react";
 
 interface PlayerInfo {
-  uuid: string;
+  id: number;
   name: string;
 }
 
 interface MatchResultProps {
-  match_id: string;
+  id: number;
   player1: PlayerInfo;
   player2: PlayerInfo;
-  played: boolean;
-  score: { player1: number; player2: number } | null;
+  score1?: number | null;
+  score2?: number | null;
+  outcome: string;
   date?: string;
 }
 
-// Hardcoded current logged in player id
-const CURRENT_PLAYER_ID = "b1a7e2c0-1f2d-4e3a-9c1a-2d3e4f5a6b7c";
-
-const MatchResult: React.FC<MatchResultProps> = ({ player1, player2, played, score, date }) => {
+const MatchResult: React.FC<MatchResultProps> = ({ player1, player2, score1, score2, outcome, date }) => {
   let resultClass = "";
-  if (played && score) {
-    if (player1.uuid === CURRENT_PLAYER_ID) {
-      resultClass = "preset-filled-success-500";
-      if (score.player1 <= score.player2) resultClass = "preset-filled-error-500";
-    } else if (player2.uuid === CURRENT_PLAYER_ID) {
-      resultClass = "preset-filled-success-500";
-      if (score.player2 <= score.player1) resultClass = "preset-filled-error-500";
-    } else {
-      resultClass = "preset-filled-surface-200-800";
-    }
-  } else {
-    resultClass = "preset-filled-surface-200-800";
-  }
+  // You can highlight the winner if you want, for now just color by outcome
+  if (outcome === "PLAYER1_WINS") resultClass = "preset-filled-success-500";
+  else if (outcome === "PLAYER2_WINS") resultClass = "preset-filled-error-500";
+  else if (outcome === "DRAW") resultClass = "preset-filled-surface-200-800";
+  else resultClass = "preset-filled-surface-200-800";
 
   return (
     <div
@@ -40,12 +30,14 @@ const MatchResult: React.FC<MatchResultProps> = ({ player1, player2, played, sco
       <div className="flex items-center justify-center gap-4 flex-1">
         <span className="font-semibold">{player1.name}</span>
         <span className="font-medium min-w-[60px]">
-          {played && score ? `${score.player1} - ${score.player2}` : <span className="text-yellow-700">vs</span>}
+          {score1 !== undefined && score2 !== undefined && score1 !== null && score2 !== null
+            ? `${score1} - ${score2}`
+            : <span className="text-yellow-700">vs</span>}
         </span>
         <span className="font-semibold">{player2.name}</span>
       </div>
       <div className="text-sm mt-2">
-        ({played && date ? date : "TBD"})
+        ({date ? new Date(date).toLocaleDateString() : "TBD"})
       </div>
     </div>
   );
