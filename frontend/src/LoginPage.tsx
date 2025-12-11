@@ -11,7 +11,18 @@ const LoginPage: React.FC = () => {
       </h1>
       <GoogleLogin
         onSuccess={(credentialResponse) => {
-          window.location.href = `${BACKEND_AUTH_URL}?token=${credentialResponse.credential}`;
+            fetch(`${BACKEND_AUTH_URL}?token=${credentialResponse.credential}`, {
+            credentials: "include",
+            })
+            .then((response) => {
+              if (!response.ok) {
+              throw new Error("Authentication failed");
+              }
+              window.location.href = "/table";
+            })
+            .catch(() => {
+              alert("Login Failed");
+            });
         }}
         onError={() => {
           alert("Login Failed");
