@@ -1,4 +1,5 @@
 import { Routes, Route } from 'react-router-dom';
+import { useEffect } from 'react';
 import LoginPage from './LoginPage';
 import LeagueResultsTabs from './LeagueResultsTabs';
 import MatchHistory from './MatchHistory';
@@ -7,6 +8,20 @@ import { ProtectedRoute } from './ProtectedRoute';
 import './App.css';
 
 function App() {
+  // Set background image directly on body
+  useEffect(() => {
+    const bgUrl = import.meta.env.VITE_BACKGROUND_IMAGE_URL;
+    if (bgUrl) {
+      document.body.style.backgroundImage = `linear-gradient(rgba(0,0,0,0.15), rgba(0,0,0,0.15)), url('${bgUrl}')`;
+      document.body.style.backgroundSize = 'cover';
+      document.body.style.backgroundPosition = 'center';
+      document.body.style.backgroundRepeat = 'no-repeat';
+      document.body.style.minHeight = '100vh';
+    }
+    return () => {
+      document.body.style.backgroundImage = '';
+    };
+  }, []);
   return (
     <Routes>
       <Route path="/login" element={<LoginPage />} />
