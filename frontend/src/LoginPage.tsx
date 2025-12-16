@@ -1,9 +1,22 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { GoogleLogin } from "@react-oauth/google";
+import { useNavigate } from "react-router-dom";
+import { useUser } from "./UserContext";
 
 const BACKEND_AUTH_URL = import.meta.env.VITE_OAUTH_CALLBACK_URL;
 
 const LoginPage: React.FC = () => {
+  const { user, loading } = useUser();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!loading && user) {
+      navigate("/table", { replace: true });
+    }
+  }, [user, loading, navigate]);
+
+  if (loading) return null;
+
   return (
     <div className="min-h-screen flex items-center justify-center">
       <div className="card flex flex-col items-center justify-center preset-glass-neutral rounded-2xl space-y-4">
