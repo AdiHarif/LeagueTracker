@@ -10,11 +10,11 @@ const navItems = [
 const NavigationBar: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const location = useLocation();
 
-  const barHeight = '20';
+  const barHeight = 20;
 
   return (
-    <div className="flex flex-col  min-h-screen">
-      <main className={`pb-${barHeight}`}>
+    <div className="flex flex-col w-full h-full">
+      <main className="pb-12">
         {children}
       </main>
       <Navigation layout="bar" className={`w-full h-${barHeight} fixed bottom-0 left-0`}>

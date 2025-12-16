@@ -6,6 +6,7 @@ import MatchHistory from './MatchHistory';
 import NavigationBar from './NavigationBar';
 import { ProtectedRoute } from './ProtectedRoute';
 import './App.css';
+import './presets.css';
 
 function App() {
   // Set background image directly on body

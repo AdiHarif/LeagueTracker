@@ -28,18 +28,32 @@ const MatchHistory: React.FC = () => {
     ...matches.filter(m => !m.date || m.outcome === 'TBD')
   ];
 
-  if (loading) return <div className="preset-filled-primary-100-800 p-8 rounded-xl text-center">Loading...</div>;
-  if (error) return <div className="preset-filled-error-100-800 p-8 rounded-xl text-center">Error: {error}</div>;
+  if (loading) return (
+    <div className="flex flex-col items-center justify-center h-screen">
+      <div className="preset-filled-primary-200-800 p-8 rounded-xl shadow text-center text-lg font-semibold">
+        Loading...
+      </div>
+    </div>
+  );
+  if (error) return (
+    <div className="flex flex-col items-center justify-center h-screen">
+      <div className="preset-filled-error-200-800 p-8 rounded-xl shadow text-center text-lg font-semibold">
+        Error: {error}
+      </div>
+    </div>
+  );
 
   return (
-    <div className="w-full max-w-xl mx-auto mt-8">
-      <h2 className="text-xl font-bold mb-4 text-center preset-filled-primary-500">My Match History</h2>
-      {sortedMatches.length === 0 && <div className="text-center">No matches found.</div>}
-      {sortedMatches.map(match => (
-        <div className="m-4" key={match.id}>
-          <MatchResult {...match} />
+    <div className="flex flex-col items-center min-h-screen">
+      <div className="w-full preset-glass-neutral rounded-2xl shadow-lg p-6">
+        <h2 className="text-2xl font-bold mb-6 text-center">My Matches</h2>
+        {sortedMatches.length === 0 && <div className="text-center">No matches found.</div>}
+        <div className="flex flex-col gap-4 items-center">
+          {sortedMatches.map(match => (
+            <MatchResult {...match} key={match.id} />
+          ))}
         </div>
-      ))}
+      </div>
     </div>
   );
 };
