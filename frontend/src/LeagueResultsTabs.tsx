@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { Tabs } from "@skeletonlabs/skeleton-react";
 import MatchResult from "./MatchResult";
+import { useUser } from "./UserContext";
 
 const LeagueResultsTabs: React.FC = () => {
   const [leagueData, setLeagueData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { user } = useUser();
 
   useEffect(() => {
     fetch(`${import.meta.env.VITE_BACKEND_URL}/league/1`, { credentials: "include" })
@@ -79,14 +81,15 @@ const LeagueResultsTabs: React.FC = () => {
             <div className="flex flex-col gap-4 items-center snap-x scroll-px-4 snap-mandatory scroll-smooth overflow-y-auto h-full">
             {matches.map((match: any) => (
               <MatchResult
-              key={match.id}
-              id={match.id}
-              player1={match.player1}
-              player2={match.player2}
-              score1={match.score1}
-              score2={match.score2}
-              outcome={match.outcome}
-              date={match.date}
+                key={match.id}
+                id={match.id}
+                player1={match.player1}
+                player2={match.player2}
+                score1={match.score1}
+                score2={match.score2}
+                outcome={match.outcome}
+                date={match.date}
+                userId={user?.id}
               />
             ))}
             </div>

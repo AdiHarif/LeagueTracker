@@ -5,6 +5,7 @@ import LeagueResultsTabs from './LeagueResultsTabs';
 import MatchHistory from './MatchHistory';
 import NavigationBar from './NavigationBar';
 import { ProtectedRoute } from './ProtectedRoute';
+import { UserProvider } from './UserContext';
 import './App.css';
 import './presets.css';
 
@@ -24,22 +25,24 @@ function App() {
     };
   }, []);
   return (
-    <Routes>
-      <Route path="/login" element={<LoginPage />} />
-      <Route
-        path="*"
-        element={
-          <ProtectedRoute>
-            <NavigationBar>
-              <Routes>
-                <Route path="/table" element={<LeagueResultsTabs />} />
-                <Route path="/history" element={<MatchHistory />} />
-              </Routes>
-            </NavigationBar>
-          </ProtectedRoute>
-        }
-      />
-    </Routes>
+    <UserProvider>
+      <Routes>
+        <Route path="/login" element={<LoginPage />} />
+        <Route
+          path="*"
+          element={
+            <ProtectedRoute>
+              <NavigationBar>
+                <Routes>
+                  <Route path="/table" element={<LeagueResultsTabs />} />
+                  <Route path="/history" element={<MatchHistory />} />
+                </Routes>
+              </NavigationBar>
+            </ProtectedRoute>
+          }
+        />
+      </Routes>
+    </UserProvider>
   );
 }
 

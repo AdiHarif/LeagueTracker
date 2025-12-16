@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
 import MatchResult from "./MatchResult";
+import { useUser } from "./UserContext";
 
 const MatchHistory: React.FC = () => {
   const [matches, setMatches] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { user } = useUser();
 
   useEffect(() => {
     fetch(`${import.meta.env.VITE_BACKEND_URL}/my-matches`, { credentials: "include" })
@@ -50,7 +52,7 @@ const MatchHistory: React.FC = () => {
         {sortedMatches.length === 0 && <div className="text-center">No matches found.</div>}
         <div className="flex flex-col gap-4 items-center">
           {sortedMatches.map(match => (
-            <MatchResult {...match} key={match.id} />
+            <MatchResult {...match} key={match.id} userId={user?.id} />
           ))}
         </div>
       </div>
