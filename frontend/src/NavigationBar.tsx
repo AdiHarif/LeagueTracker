@@ -1,10 +1,11 @@
 import { Link, useLocation } from "react-router-dom";
 import { Navigation } from "@skeletonlabs/skeleton-react";
-import { Table2, Gamepad2 } from 'lucide-react';
+import { Table2, Gamepad2, User } from 'lucide-react';
 
 const navItems = [
   { label: "League Standings", to: "/table", icon: Table2 },
-  { label: "My Matches", to: "/history", icon: Gamepad2 }
+  { label: "My Matches", to: "/history", icon: Gamepad2 },
+  { label: "Profile", to: "/profile", icon: User },
 ];
 
 const NavigationBar: React.FC<{ children: React.ReactNode }> = ({ children }) => {

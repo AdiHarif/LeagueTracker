@@ -8,6 +8,7 @@ import { ProtectedRoute } from './ProtectedRoute';
 import { UserProvider } from './UserContext';
 import './App.css';
 import './presets.css';
+import ProfilePage from './ProfilePage';
 
 function App() {
   // Set background image directly on body
@@ -36,6 +37,7 @@ function App() {
                 <Routes>
                   <Route path="/table" element={<LeagueResultsTabs />} />
                   <Route path="/history" element={<MatchHistory />} />
+                  <Route path="/profile" element={<ProfilePage />} />
                   <Route path="*" element={<Navigate to="/table" replace />} />
                 </Routes>
               </NavigationBar>
