@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import LoginPage from './LoginPage';
 import LeagueResultsTabs from './LeagueResultsTabs';
@@ -36,6 +36,7 @@ function App() {
                 <Routes>
                   <Route path="/table" element={<LeagueResultsTabs />} />
                   <Route path="/history" element={<MatchHistory />} />
+                  <Route path="*" element={<Navigate to="/table" replace />} />
                 </Routes>
               </NavigationBar>
             </ProtectedRoute>
