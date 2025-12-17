@@ -6,6 +6,8 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import { PrismaPg } from '@prisma/adapter-pg'
 import { PrismaClient } from './generated/prisma/client.js';
+import morgan from 'morgan';
+import logger from './utils/logger.js';
 
 dotenv.config();
 
@@ -23,6 +25,13 @@ app.use(cookieParser());
 app.use(cors({
   origin: process.env.FRONTEND_URL || 'http://localhost:5173',
   credentials: true,
+}));
+app.use(morgan(
+  ':method :url :status - :response-time ms'
+  , {
+  stream: {
+    write: (message) => logger.info(message.trim()),
+  },
 }));
 
 app.get('/', (req, res) => {
@@ -92,14 +101,12 @@ app.get('/auth/callback', async (req, res) => {
 
 app.get('/auth/check', (req, res) => {
   const token = req.cookies.token;
-  console.log('Checking auth token:', token);
   if (!token) {
     return res.status(401).json({ authenticated: false, error: 'No token provided' });
   }
   try {
     const user = jwt.verify(token, JWT_SECRET);
     res.json({ authenticated: true, user });
-    console.log('Response:', { authenticated: true, user });
   } catch (err) {
     return res.status(401).json({ authenticated: false, error: 'Invalid token' });
   }
@@ -229,5 +236,5 @@ app.post('/logout', (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  logger.info(`Server running on port ${PORT}`);
 });
