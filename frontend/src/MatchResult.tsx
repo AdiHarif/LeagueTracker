@@ -36,14 +36,18 @@ const MatchResult: React.FC<MatchResultProps> = ({ player1, player2, score1, sco
     <div
       className={`card w-full max-w-xl ${resultClass} p-4 text-center flex flex-col justify-center`}
     >
-      <div className="flex items-center justify-center gap-4 flex-1">
-        <span className={player1Class}>{player1.name}</span>
-        <span className="font-medium min-w-[60px]">
+      <div className="flex items-center justify-center flex-1">
+        <div className="flex-1 flex justify-end">
+          <span className={player1Class}>{player1.name}</span>
+        </div>
+        <span className="font-medium min-w-16 text-center shrink-0 grow-0">
           {score1 !== undefined && score2 !== undefined && score1 !== null && score2 !== null
             ? `${score1} - ${score2}`
-            : <span className="text-yellow-700">vs</span>}
+            : <span className="text-primary-800-200">vs</span>}
         </span>
-        <span className={player2Class}>{player2.name}</span>
+        <div className="flex-1 flex justify-start">
+          <span className={player2Class}>{player2.name}</span>
+        </div>
       </div>
       <div className="text-sm mt-2">
         ({date ? new Date(date).toLocaleDateString() : "TBD"})
