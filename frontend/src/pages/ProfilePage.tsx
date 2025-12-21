@@ -1,5 +1,5 @@
 import React from "react";
-import { useUser } from "./UserContext";
+import { useUser } from "../hooks/useUser";
 import { useNavigate } from "react-router-dom";
 
 const ProfilePage: React.FC = () => {

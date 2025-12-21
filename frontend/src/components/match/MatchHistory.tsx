@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
 import MatchResult from "./MatchResult";
-import { useUser } from "./UserContext";
+import { useUser } from "../../hooks/useUser";
+import type { Match } from "../../types";
 
 const MatchHistory: React.FC = () => {
-  const [matches, setMatches] = useState<any[]>([]);
+  const [matches, setMatches] = useState<Match[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { user } = useUser();

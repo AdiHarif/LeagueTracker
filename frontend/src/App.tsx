@@ -1,14 +1,14 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useEffect } from 'react';
-import LoginPage from './LoginPage';
-import LeagueResultsTabs from './LeagueResultsTabs';
-import MatchHistory from './MatchHistory';
-import NavigationBar from './NavigationBar';
-import { ProtectedRoute } from './ProtectedRoute';
-import { UserProvider } from './UserContext';
-import './App.css';
-import './presets.css';
-import ProfilePage from './ProfilePage';
+import LoginPage from './pages/LoginPage';
+import LeagueResultsTabs from './components/league/LeagueResultsTabs';
+import MatchHistory from './components/match/MatchHistory';
+import NavigationBar from './components/common/NavigationBar';
+import { ProtectedRoute } from './routes/ProtectedRoute';
+import { UserProvider } from './contexts/UserContext';
+import './styles/App.css';
+import './styles/presets.css';
+import ProfilePage from './pages/ProfilePage';
 
 function App() {
   // Set background image directly on body

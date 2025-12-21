@@ -1,21 +1,6 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
-
-interface User {
-  id: number;
-  name: string;
-  email: string;
-  picture?: string;
-}
-
-interface UserContextType {
-  user: User | null;
-  loading: boolean;
-  error: string | null;
-}
-
-const UserContext = createContext<UserContextType>({ user: null, loading: true, error: null });
-
-export const useUser = () => useContext(UserContext);
+import React, { useEffect, useState } from "react";
+import type { User } from "./UserContextDefinition";
+import { UserContext } from "./UserContextDefinition";
 
 export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);

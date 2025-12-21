@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { Tabs } from "@skeletonlabs/skeleton-react";
-import MatchResult from "./MatchResult";
-import { useUser } from "./UserContext";
+import MatchResult from "../match/MatchResult";
+import { useUser } from "../../hooks/useUser";
+import type { LeagueData, Standing, Match } from "../../types";
 
 const LeagueResultsTabs: React.FC = () => {
-  const [leagueData, setLeagueData] = useState<any>(null);
+  const [leagueData, setLeagueData] = useState<LeagueData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { user } = useUser();
@@ -64,7 +65,7 @@ const LeagueResultsTabs: React.FC = () => {
                 </tr>
               </thead>
                 <tbody>
-                {standings.map((player: any, idx: number) => (
+                {standings.map((player: Standing, idx: number) => (
                   <tr
                   key={player.name}
                   className={`${idx === 0 ? "preset-filled-success-100-900 font-bold" : ""} border-b border-surface-50-950 last:border-b-0`}
@@ -83,7 +84,7 @@ const LeagueResultsTabs: React.FC = () => {
         </Tabs.Content>
         <Tabs.Content value="matches">
             <div className="flex flex-col gap-4 items-center snap-x scroll-px-4 snap-mandatory scroll-smooth overflow-y-auto h-full">
-            {matches.map((match: any) => (
+            {matches.map((match: Match) => (
               <MatchResult
                 key={match.id}
                 id={match.id}

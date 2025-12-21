@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { GoogleLogin } from "@react-oauth/google";
 import { useNavigate } from "react-router-dom";
-import { useUser } from "./UserContext";
+import { useUser } from "../hooks/useUser";
 
 const BACKEND_AUTH_URL = import.meta.env.VITE_OAUTH_CALLBACK_URL;
 
