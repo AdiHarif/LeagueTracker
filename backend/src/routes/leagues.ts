@@ -34,6 +34,17 @@ router.get('/:id', async (req: Request, res: Response) => {
       return res.status(404).json({ error: 'League not found' });
     }
 
+    // Check if user is part of the league (owner or player in any match)
+    const userId = req.user!.id;
+    const isOwner = league.ownerId === userId;
+    const isPlayer = league.matches.some(
+      match => match.player1Id === userId || match.player2Id === userId
+    );
+
+    if (!isOwner && !isPlayer) {
+      return res.status(403).json({ error: 'Forbidden: You are not part of this league' });
+    }
+
     // Calculate standings
     const standingsArr = calculateStandings(league.matches);
 
