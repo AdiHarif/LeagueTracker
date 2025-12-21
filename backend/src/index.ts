@@ -25,14 +25,6 @@ app.use(morgan(
   },
 }));
 
-// Root endpoint
-app.get('/', requireAuth, (req, res) => {
-  res.json({
-    message: 'Welcome to the Sealed League Tracker backend API!',
-    user: req.user,
-  });
-});
-
 // Mount routes
 app.use('/auth', authRoutes);
 app.use('/leagues', requireAuth, leagueRoutes);
