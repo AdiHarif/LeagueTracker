@@ -10,7 +10,7 @@ const LeagueResultsTabs: React.FC = () => {
   const { user } = useUser();
 
   const fetchLeague = () => {
-    fetch(`${import.meta.env.VITE_BACKEND_URL}/league/1`, { credentials: "include" })
+    fetch(`${import.meta.env.VITE_BACKEND_URL}/leagues/1`, { credentials: "include" })
       .then((res) => {
         if (!res.ok) throw new Error("Failed to fetch league");
         return res.json();

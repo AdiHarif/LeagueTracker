@@ -9,7 +9,7 @@ const MatchHistory: React.FC = () => {
   const { user } = useUser();
 
   const fetchMatches = () => {
-    fetch(`${import.meta.env.VITE_BACKEND_URL}/my-matches`, { credentials: "include" })
+    fetch(`${import.meta.env.VITE_BACKEND_URL}/matches/my-matches`, { credentials: "include" })
       .then((res) => {
         if (!res.ok) throw new Error("Failed to fetch matches");
         return res.json();

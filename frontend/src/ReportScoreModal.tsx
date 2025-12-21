@@ -35,7 +35,7 @@ const ReportScoreModal: React.FC<ReportScoreModalProps> = ({
 
     setIsSubmitting(true);
     try {
-      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/match/${matchId}/score`, {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/matches/${matchId}/score`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',

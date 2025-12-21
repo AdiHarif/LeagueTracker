@@ -7,7 +7,7 @@ const ProfilePage: React.FC = () => {
   const navigate = useNavigate();
 
   const handleLogout = async () => {
-    await fetch(`${import.meta.env.VITE_BACKEND_URL}/logout`, {
+    await fetch(`${import.meta.env.VITE_BACKEND_URL}/auth/logout`, {
       method: "POST",
       credentials: "include",
     });

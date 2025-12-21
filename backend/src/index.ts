@@ -1,30 +1,20 @@
 import express from 'express';
-import { OAuth2Client } from 'google-auth-library';
 import cookieParser from 'cookie-parser';
-import jwt from 'jsonwebtoken';
-import dotenv from 'dotenv';
 import cors from 'cors';
-import { PrismaPg } from '@prisma/adapter-pg'
-import { PrismaClient } from './generated/prisma/client.js';
 import morgan from 'morgan';
 import logger from './utils/logger.js';
-
-dotenv.config();
+import { config } from './config.js';
+import { requireAuth } from './middleware.js';
+import authRoutes from './routes/auth.js';
+import leagueRoutes from './routes/leagues.js';
+import matchRoutes from './routes/matches.js';
 
 const app = express();
-const PORT = process.env.PORT || 3001;
-
-const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || 'MY_GOOGLE_CLIENT_ID';
-const JWT_SECRET = process.env.JWT_SECRET || 'your-very-secret-key';
-const client = new OAuth2Client(GOOGLE_CLIENT_ID);
-const DATABASE_URL = process.env.DATABASE_URL || '';
-const adapter = new PrismaPg({connectionString: DATABASE_URL});
-const prisma = new PrismaClient({adapter});
 
 app.use(cookieParser());
 app.use(express.json());
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+  origin: config.frontendUrl,
   credentials: true,
 }));
 app.use(morgan(
@@ -35,294 +25,20 @@ app.use(morgan(
   },
 }));
 
-app.get('/', (req, res) => {
-  const token = req.cookies.token;
-  if (!token) {
-    return res.status(401).json({ error: 'Unauthorized: No token provided' });
-  }
-  try {
-    const user = jwt.verify(token, JWT_SECRET);
-    res.json({
-      message: 'Welcome to the Sealed League Tracker backend API!',
-      user,
-    });
-  } catch (err) {
-    return res.status(401).json({ error: 'Unauthorized: Invalid token' });
-  }
-});
-
-app.get('/auth/callback', async (req, res) => {
-  const token = req.query.token as string;
-  if (!token) {
-    return res.status(400).json({ error: 'Missing token' });
-  }
-  try {
-    const ticket = await client.verifyIdToken({
-      idToken: token,
-      audience: GOOGLE_CLIENT_ID,
-    });
-    const payload = ticket.getPayload();
-    if (!payload || !payload.email) {
-      return res.status(400).json({ error: 'Invalid Google payload' });
-    }
-    // Fetch user from DB
-    let dbUser = await prisma.user.findUnique({ where: { email: payload.email } });
-    // If user does not exist, create it
-    if (!dbUser) {
-      dbUser = await prisma.user.create({
-        data: {
-          name: payload.name || payload.email.split('@')[0] || '',
-          email: payload.email,
-          privileges: 'USER',
-        },
-      });
-    }
-    // Create JWT with user info and DB id
-    const jwtPayload = {
-      id: dbUser.id,
-      email: payload.email,
-      name: dbUser.name,
-      picture: payload.picture,
-      sub: payload.sub,
-    };
-    const jwtToken = jwt.sign(jwtPayload, JWT_SECRET, { expiresIn: '7d' });
-    // Set JWT as HTTP-only cookie
-    res.cookie('token', jwtToken, {
-      httpOnly: true,
-      // secure: process.env.NODE_ENV === 'production',
-      secure: true,
-      sameSite: 'none',
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-    });
-    res.json({ success: true, message: 'Login successful' });
-  } catch (err) {
-    res.status(401).json({ error: 'Invalid Google token', details: err instanceof Error ? err.message : err });
-  }
-});
-
-app.get('/auth/check', (req, res) => {
-  const token = req.cookies.token;
-  if (!token) {
-    return res.status(401).json({ authenticated: false, error: 'No token provided' });
-  }
-  try {
-    const user = jwt.verify(token, JWT_SECRET);
-    res.json({ authenticated: true, user });
-  } catch (err) {
-    return res.status(401).json({ authenticated: false, error: 'Invalid token' });
-  }
-});
-
-app.get('/league/:id', async (req, res) => {
-  const leagueId = parseInt(req.params.id, 10);
-  if (isNaN(leagueId)) {
-    return res.status(400).json({ error: 'Invalid league id' });
-  }
-  try {
-    // Get league info and matches
-    const league = await prisma.league.findUnique({
-      where: { id: leagueId },
-      include: {
-        matches: {
-          include: {
-            player1: true,
-            player2: true,
-          },
-        },
-      },
-    });
-    if (!league) {
-      return res.status(404).json({ error: 'League not found' });
-    }
-    // Build standings
-    const standings: Record<string, any> = {};
-    for (const match of league.matches) {
-      // Only count matches with both players and a decided outcome
-      if (match.outcome === 'TBD') continue;
-      const players = [match.player1, match.player2];
-      for (const player of players) {
-        if (!player) continue;
-        if (!standings[player.id]) {
-          standings[player.id] = {
-            name: player.name,
-            gamesPlayed: 0,
-            wins: 0,
-            draws: 0,
-            losses: 0,
-            points: 0,
-          };
-        }
-        standings[player.id].gamesPlayed++;
-      }
-      // Outcome logic
-      if (match.outcome === 'PLAYER1_WINS') {
-        standings[match.player1Id].wins++;
-        standings[match.player1Id].points += 3;
-        standings[match.player2Id].losses++;
-      } else if (match.outcome === 'PLAYER2_WINS') {
-        standings[match.player2Id].wins++;
-        standings[match.player2Id].points += 3;
-        standings[match.player1Id].losses++;
-      } else if (match.outcome === 'DRAW') {
-        standings[match.player1Id].draws++;
-        standings[match.player2Id].draws++;
-        standings[match.player1Id].points++;
-        standings[match.player2Id].points++;
-      }
-    }
-    // Sort matches by round ascending
-    const sortedMatches = [...league.matches].sort((a, b) => (a.round ?? 0) - (b.round ?? 0));
-    // Convert standings to array and sort by points descending
-    const standingsArr = Object.values(standings).sort((a, b) => b.points - a.points);
-    res.json({
-      league: {
-        id: league.id,
-        name: league.name,
-        status: league.status,
-        createdAt: league.createdAt,
-        startDate: league.startDate,
-        ownerId: league.ownerId,
-      },
-      matches: sortedMatches,
-      standings: standingsArr,
-    });
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to fetch league', details: err instanceof Error ? err.message : err });
-  }
-});
-
-app.get('/my-matches', async (req, res) => {
-  const token = req.cookies.token;
-  if (!token) {
-    return res.status(401).json({ error: 'Unauthorized: No token provided' });
-  }
-  let user: any;
-  try {
-    const decoded = jwt.verify(token, JWT_SECRET);
-    if (typeof decoded === 'string' || !('id' in decoded)) {
-      return res.status(401).json({ error: 'Unauthorized: Invalid token payload' });
-    }
-    user = decoded as { id: number };
-  } catch (err) {
-    return res.status(401).json({ error: 'Unauthorized: Invalid token' });
-  }
-  try {
-    const matches = await prisma.match.findMany({
-      where: {
-        OR: [
-          { player1Id: user.id },
-          { player2Id: user.id },
-        ],
-      },
-      include: {
-        league: true,
-        player1: true,
-        player2: true,
-      },
-    });
-    const sortedMatches = matches.sort((a, b) => (a.round ?? 0) - (b.round ?? 0));
-    res.json({ matches: sortedMatches });
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to fetch matches', details: err instanceof Error ? err.message : err });
-  }
-});
-
-app.post('/logout', (req, res) => {
-  res.clearCookie('token', {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+// Root endpoint
+app.get('/', requireAuth, (req, res) => {
+  res.json({
+    message: 'Welcome to the Sealed League Tracker backend API!',
+    user: req.user,
   });
-  res.status(200).json({ message: 'Logged out' });
 });
 
-app.post('/match/:id/score', async (req, res) => {
-  // Verify user authentication
-  const token = req.cookies.token;
-  if (!token) {
-    return res.status(401).json({ error: 'Unauthorized: No token provided' });
-  }
+// Mount routes
+app.use('/auth', authRoutes);
+app.use('/leagues', leagueRoutes);
+app.use('/matches', matchRoutes);
 
-  let user: any;
-  try {
-    const decoded = jwt.verify(token, JWT_SECRET);
-    if (typeof decoded === 'string' || !('id' in decoded)) {
-      return res.status(401).json({ error: 'Unauthorized: Invalid token payload' });
-    }
-    user = decoded as { id: number };
-  } catch (err) {
-    return res.status(401).json({ error: 'Unauthorized: Invalid token' });
-  }
-
-  const matchId = parseInt(req.params.id, 10);
-  const { score1, score2 } = req.body;
-
-  if (isNaN(matchId)) {
-    return res.status(400).json({ error: 'Invalid match id' });
-  }
-
-  // Validate scores
-  if (typeof score1 !== 'number' || typeof score2 !== 'number' || score1 < 0 || score2 < 0) {
-    return res.status(400).json({ error: 'Invalid scores' });
-  }
-  if (score1 + score2 > 3) {
-    return res.status(400).json({ error: 'Total games cannot exceed 3' });
-  }
-
-  const match = await prisma.match.findUnique({
-    where: { id: matchId }
-  });
-
-  if (!match) {
-    throw new Error('Match not found');
-  }
-
-  // Check if user is one of the players
-  if (match.player1Id !== user.id && match.player2Id !== user.id) {
-    throw new Error('Forbidden: You are not a player in this match');
-  }
-
-  // Check if match already has a score (critical section)
-  if (match.score1 !== null || match.score2 !== null) {
-    throw new Error('Match already has a score');
-  }
-
-  // Determine outcome
-  let outcome: 'PLAYER1_WINS' | 'PLAYER2_WINS' | 'DRAW';
-  if (score1 > score2) {
-    outcome = 'PLAYER1_WINS';
-  } else if (score2 > score1) {
-    outcome = 'PLAYER2_WINS';
-  } else {
-    outcome = 'DRAW';
-  }
-
-  // Update the match atomically
-  let updatedMatch;
-  try {
-    updatedMatch = await prisma.match.update({
-      where: { id: matchId, outcome: 'TBD' },
-      data: {
-        score1,
-        score2,
-        outcome,
-        date: new Date(),
-      },
-      include: {
-        player1: true,
-        player2: true,
-        league: true,
-      },
-    });
-  } catch (err) {
-    logger.error('Failed to update match %d: %s', matchId, err instanceof Error ? err.message : err);
-    return res.status(500).json({ error: 'Failed to update match'});
-  }
-
-  logger.info('Match %d score updated by user %d: %d-%d (%s)', matchId, user.id, score1, score2, updatedMatch.outcome);
-  res.json({ success: true, match: updatedMatch });
-});
-
-app.listen(PORT, () => {
-  logger.info(`Server running on port ${PORT}`);
+// Start server
+app.listen(config.port, () => {
+  logger.info(`Server running on port ${config.port}`);
 });
