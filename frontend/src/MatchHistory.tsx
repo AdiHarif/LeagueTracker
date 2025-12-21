@@ -8,20 +8,24 @@ const MatchHistory: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const { user } = useUser();
 
-  useEffect(() => {
+  const fetchMatches = () => {
     fetch(`${import.meta.env.VITE_BACKEND_URL}/my-matches`, { credentials: "include" })
       .then((res) => {
-      if (!res.ok) throw new Error("Failed to fetch matches");
-      return res.json();
+        if (!res.ok) throw new Error("Failed to fetch matches");
+        return res.json();
       })
       .then((data) => {
-      setMatches(data.matches || []);
-      setLoading(false);
+        setMatches(data.matches || []);
+        setLoading(false);
       })
       .catch((err) => {
-      setError(err.message);
-      setLoading(false);
+        setError(err.message);
+        setLoading(false);
       });
+  };
+
+  useEffect(() => {
+    fetchMatches();
   }, []);
 
   // Sort: played matches by date descending, then unplayed at the end
@@ -52,7 +56,7 @@ const MatchHistory: React.FC = () => {
         {sortedMatches.length === 0 && <div className="text-center">No matches found.</div>}
         <div className="flex flex-col gap-4 items-center">
           {sortedMatches.map(match => (
-            <MatchResult {...match} key={match.id} userId={user?.id} />
+            <MatchResult {...match} key={match.id} userId={user?.id} onScoreSubmit={fetchMatches} />
           ))}
         </div>
       </div>

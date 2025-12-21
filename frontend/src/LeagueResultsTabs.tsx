@@ -9,20 +9,24 @@ const LeagueResultsTabs: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const { user } = useUser();
 
-  useEffect(() => {
+  const fetchLeague = () => {
     fetch(`${import.meta.env.VITE_BACKEND_URL}/league/1`, { credentials: "include" })
       .then((res) => {
-      if (!res.ok) throw new Error("Failed to fetch league");
-      return res.json();
+        if (!res.ok) throw new Error("Failed to fetch league");
+        return res.json();
       })
       .then((data) => {
-      setLeagueData(data);
-      setLoading(false);
+        setLeagueData(data);
+        setLoading(false);
       })
       .catch((err) => {
-      setError(err.message);
-      setLoading(false);
+        setError(err.message);
+        setLoading(false);
       });
+  };
+
+  useEffect(() => {
+    fetchLeague();
   }, []);
 
   if (loading) return <div className="preset-filled-primary-200-800 p-8 rounded-xl text-center">Loading...</div>;
@@ -90,6 +94,7 @@ const LeagueResultsTabs: React.FC = () => {
                 outcome={match.outcome}
                 date={match.date}
                 userId={user?.id}
+                onScoreSubmit={fetchLeague}
               />
             ))}
             </div>
