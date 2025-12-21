@@ -35,8 +35,8 @@ app.get('/', requireAuth, (req, res) => {
 
 // Mount routes
 app.use('/auth', authRoutes);
-app.use('/leagues', leagueRoutes);
-app.use('/matches', matchRoutes);
+app.use('/leagues', requireAuth, leagueRoutes);
+app.use('/matches', requireAuth, matchRoutes);
 
 // Start server
 app.listen(config.port, () => {

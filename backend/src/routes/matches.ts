@@ -1,7 +1,6 @@
 import { Router } from 'express';
 import type { Request, Response } from 'express';
 import { prisma } from '../config.js';
-import { requireAuth } from '../middleware.js';
 import logger from '../utils/logger.js';
 
 const router = Router();
@@ -10,7 +9,7 @@ const router = Router();
  * GET /matches/my-matches
  * Get all matches for the authenticated user
  */
-router.get('/my-matches', requireAuth, async (req: Request, res: Response) => {
+router.get('/my-matches', async (req: Request, res: Response) => {
   try {
     const matches = await prisma.match.findMany({
       where: {
@@ -40,7 +39,7 @@ router.get('/my-matches', requireAuth, async (req: Request, res: Response) => {
  * POST /matches/:id/score
  * Report score for a match (only if you're a player in that match)
  */
-router.post('/:id/score', requireAuth, async (req: Request, res: Response) => {
+router.post('/:id/score', async (req: Request, res: Response) => {
   const matchId = parseInt(req.params.id!, 10);
   const { score1, score2 } = req.body;
 
