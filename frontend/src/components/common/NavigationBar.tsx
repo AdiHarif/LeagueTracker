@@ -15,7 +15,7 @@ const NavigationBar: React.FC<{ children: React.ReactNode }> = ({ children }) =>
 
   return (
     <div className="flex flex-col w-full h-full">
-      <main className="pb-12">
+      <main className="pb-16 md:pb-20">
         {children}
       </main>
       <Navigation layout="bar" className={`w-full h-${barHeight} fixed bottom-0 left-0`}>
@@ -27,10 +27,10 @@ const NavigationBar: React.FC<{ children: React.ReactNode }> = ({ children }) =>
           <Link
             key={item.to}
             to={item.to}
-            className={`flex flex-col items-center flex-1 text-center text-primary-500 ${isActive ? "preset-tonal" : ""}`}
+            className={`flex flex-col items-center flex-1 text-center text-primary-500 py-2 ${isActive ? "preset-tonal" : ""}`}
           >
-            <Icon size={32} />
-            <span>{item.label}</span>
+            <Icon size={24} className="md:w-8 md:h-8" />
+            <span className="text-xs md:text-base whitespace-nowrap">{item.label}</span>
           </Link>
         );
           })}

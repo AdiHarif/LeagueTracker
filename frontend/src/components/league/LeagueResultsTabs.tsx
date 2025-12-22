@@ -37,31 +37,31 @@ const LeagueResultsTabs: React.FC = () => {
   const { league, matches, standings } = leagueData;
 
   return (
-    <div className="w-full preset-glass-neutral rounded-2xl p-6">
-      <h1 className="text-2xl font-bold mb-6 text-center">{league.name}</h1>
+    <div className="w-full preset-glass-neutral rounded-xl md:rounded-2xl p-3 md:p-6">
+      <h1 className="text-xl md:text-2xl font-bold mb-4 md:mb-6 text-center">{league.name}</h1>
       <Tabs defaultValue={"standings"}>
         <div className="flex w-full mb-4">
-          <Tabs.List className="flex w-full gap-2">
-            <Tabs.Trigger className="flex-1 btn-lg" value="standings">
+          <Tabs.List className="flex w-full gap-1 md:gap-2">
+            <Tabs.Trigger className="flex-1 btn-md md:btn-lg text-sm md:text-base" value="standings">
               Standings
             </Tabs.Trigger>
-            <Tabs.Trigger className="flex-1 btn-lg" value="matches">
+            <Tabs.Trigger className="flex-1 btn-md md:btn-lg text-sm md:text-base" value="matches">
               Matches
             </Tabs.Trigger>
             <Tabs.Indicator className="preset-filled-primary-200-800" />
           </Tabs.List>
         </div>
         <Tabs.Content value="standings">
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto -mx-3 px-3 md:mx-0 md:px-0">
             <table className="min-w-full rounded-lg overflow-hidden preset-filled-surface-200-800">
               <thead className="preset-filled-primary-200-800">
                 <tr>
-                  <th className="p-4">Name</th>
-                  <th className="p-4">Games Played</th>
-                  <th className="p-4">Wins</th>
-                  <th className="p-4">Draws</th>
-                  <th className="p-4">Losses</th>
-                  <th className="p-4">Points</th>
+                  <th className="p-3 md:p-5 text-xs md:text-base sticky left-0 preset-filled-primary-200-800 z-10">Name</th>
+                  <th className="p-3 md:p-5 text-xs md:text-base whitespace-nowrap">GP</th>
+                  <th className="p-3 md:p-5 text-xs md:text-base">W</th>
+                  <th className="p-3 md:p-5 text-xs md:text-base">D</th>
+                  <th className="p-3 md:p-5 text-xs md:text-base">L</th>
+                  <th className="p-3 md:p-5 text-xs md:text-base">Pts</th>
                 </tr>
               </thead>
                 <tbody>
@@ -70,12 +70,12 @@ const LeagueResultsTabs: React.FC = () => {
                   key={player.name}
                   className={`${idx === 0 ? "preset-filled-success-100-900 font-bold" : ""} border-b border-surface-50-950 last:border-b-0`}
                   >
-                  <td className="p-4 font-semibold text-lg">{player.name}</td>
-                  <td className="p-4 text-lg">{player.gamesPlayed}</td>
-                  <td className="p-4 text-lg">{player.wins}</td>
-                  <td className="p-4 text-lg">{player.draws}</td>
-                  <td className="p-4 text-lg">{player.losses}</td>
-                  <td className="p-4 text-lg">{player.points}</td>
+                  <td className="p-3 md:p-5 font-semibold text-sm md:text-lg sticky left-0 z-10 whitespace-nowrap">{player.name}</td>
+                  <td className="p-3 md:p-5 text-sm md:text-lg">{player.gamesPlayed}</td>
+                  <td className="p-3 md:p-5 text-sm md:text-lg">{player.wins}</td>
+                  <td className="p-3 md:p-5 text-sm md:text-lg">{player.draws}</td>
+                  <td className="p-3 md:p-5 text-sm md:text-lg">{player.losses}</td>
+                  <td className="p-3 md:p-5 text-sm md:text-lg">{player.points}</td>
                   </tr>
                 ))}
                 </tbody>

@@ -18,9 +18,9 @@ const LoginPage: React.FC = () => {
   if (loading) return null;
 
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="card flex flex-col items-center justify-center preset-glass-neutral rounded-2xl space-y-4">
-        <h1 className="text-2xl font-bold">
+    <div className="min-h-screen flex items-center justify-center px-4">
+      <div className="card flex flex-col items-center justify-center preset-glass-neutral rounded-xl md:rounded-2xl space-y-4 w-full max-w-md">
+        <h1 className="text-xl md:text-2xl font-bold text-center">
           Welcome to League Tracker
         </h1>
         <GoogleLogin

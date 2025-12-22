@@ -48,22 +48,22 @@ const MatchResult: React.FC<MatchResultProps> = ({ id, player1, player2, score1,
 
   return (
     <div
-      className={`card w-full max-w-xl ${resultClass} p-4 text-center flex flex-col justify-center relative`}
+      className={`card w-full max-w-xl ${resultClass} p-3 md:p-4 text-center flex flex-col justify-center relative`}
     >
-      <div className="flex items-center justify-center flex-1">
-        <div className="flex-1 flex justify-end">
-          <span className={player1Class}>{player1.name}</span>
+      <div className="flex items-center justify-center flex-1 gap-2 md:gap-0">
+        <div className="flex-1 flex justify-end pr-2">
+          <span className={`${player1Class} text-sm md:text-base truncate`}>{player1.name}</span>
         </div>
-        <span className="font-medium min-w-16 text-center shrink-0 grow-0">
+        <span className="font-medium min-w-12 md:min-w-16 text-center shrink-0 grow-0 text-sm md:text-base">
           {score1 !== undefined && score2 !== undefined && score1 !== null && score2 !== null
             ? `${score1} - ${score2}`
             : <span className="text-primary-800-200">vs</span>}
         </span>
-        <div className="flex-1 flex justify-start">
-          <span className={player2Class}>{player2.name}</span>
+        <div className="flex-1 flex justify-start pl-2">
+          <span className={`${player2Class} text-sm md:text-base truncate`}>{player2.name}</span>
         </div>
       </div>
-      <div className="text-sm mt-2">
+      <div className="text-xs md:text-sm mt-2">
         ({date ? new Date(date).toLocaleDateString() : "TBD"})
       </div>
 
