@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { checkAuth } from '../services/auth';
+import LoadingSpinner from '../components/common/LoadingSpinner';
 
 export function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
@@ -17,7 +18,7 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
     });
   }, [navigate]);
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <LoadingSpinner fullScreen message="Checking authentication..." />;
   if (!authenticated) return null; // Prevent rendering children before redirect
 
   return <>{children}</>;

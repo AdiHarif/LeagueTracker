@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import LoadingSpinner from "../common/LoadingSpinner";
 
 interface PlayerInfo {
   id: number;
@@ -56,6 +57,14 @@ const ReportScoreModal: React.FC<ReportScoreModalProps> = ({
       setIsSubmitting(false);
     }
   };
+
+  if (isSubmitting) {
+    return (
+      <div className="card preset-filled-surface-200-800 p-6 w-full max-h-[33vh] shadow-2xl flex flex-col overflow-auto z-50">
+        <LoadingSpinner size="lg" message="Submitting score..." />
+      </div>
+    );
+  }
 
   return (
     <div className="card preset-filled-surface-200-800 p-6 w-full max-h-[33vh] shadow-2xl flex flex-col overflow-auto z-50">

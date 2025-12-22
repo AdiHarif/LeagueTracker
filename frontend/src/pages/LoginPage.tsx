@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { GoogleLogin } from "@react-oauth/google";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "../hooks/useUser";
+import LoadingSpinner from "../components/common/LoadingSpinner";
 
 const BACKEND_AUTH_URL = import.meta.env.VITE_OAUTH_CALLBACK_URL;
 
@@ -15,7 +16,7 @@ const LoginPage: React.FC = () => {
     }
   }, [user, loading, navigate]);
 
-  if (loading) return null;
+  if (loading) return <LoadingSpinner fullScreen message="Checking authentication..." />;
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4">

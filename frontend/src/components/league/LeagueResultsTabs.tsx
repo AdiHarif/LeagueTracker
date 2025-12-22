@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Tabs } from "@skeletonlabs/skeleton-react";
 import MatchResult from "../match/MatchResult";
 import { useUser } from "../../hooks/useUser";
+import LoadingSpinner from "../common/LoadingSpinner";
 import type { LeagueData, Standing, Match } from "../../types";
 
 const LeagueResultsTabs: React.FC = () => {
@@ -30,7 +31,13 @@ const LeagueResultsTabs: React.FC = () => {
     fetchLeague();
   }, []);
 
-  if (loading) return <div className="preset-filled-primary-200-800 p-8 rounded-xl text-center">Loading...</div>;
+  if (loading) return (
+    <div className="flex flex-col items-center justify-center min-h-screen">
+      <div className="w-full preset-glass-neutral rounded-xl md:rounded-2xl shadow-lg p-6">
+        <LoadingSpinner message="Loading league data..." />
+      </div>
+    </div>
+  );
   if (error) return <div className="preset-filled-error-200-800 p-8 rounded-xl text-center">Error: {error}</div>;
   if (!leagueData) return <div className="preset-filled-surface-200-800 p-8 rounded-xl text-center">No league data found.</div>;
 

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import MatchResult from "./MatchResult";
 import { useUser } from "../../hooks/useUser";
+import LoadingSpinner from "../common/LoadingSpinner";
 import type { Match } from "../../types";
 
 const MatchHistory: React.FC = () => {
@@ -37,8 +38,8 @@ const MatchHistory: React.FC = () => {
 
   if (loading) return (
     <div className="flex flex-col items-center justify-center h-screen">
-      <div className="preset-filled-primary-200-800 p-8 rounded-xl shadow text-center text-lg font-semibold">
-        Loading...
+      <div className="w-full preset-glass-neutral rounded-2xl shadow-lg p-6">
+        <LoadingSpinner message="Loading your matches..." />
       </div>
     </div>
   );

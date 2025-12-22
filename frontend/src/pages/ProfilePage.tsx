@@ -1,16 +1,23 @@
-import React from "react";
+import React, { useState } from "react";
 import { useUser } from "../hooks/useUser";
+import LoadingSpinner from "../components/common/LoadingSpinner";
 
 const ProfilePage: React.FC = () => {
   const { user } = useUser();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const handleLogout = async () => {
+    setIsLoggingOut(true);
     await fetch(`${import.meta.env.VITE_BACKEND_URL}/auth/logout`, {
       method: "POST",
       credentials: "include",
     });
     window.location.reload();
   };
+
+  if (isLoggingOut) {
+    return <LoadingSpinner fullScreen message="Logging out..." />;
+  }
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen px-4">
