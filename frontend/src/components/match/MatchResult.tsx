@@ -42,11 +42,11 @@ const MatchResult: React.FC<MatchResultProps> = ({
     if (outcome === "PLAYER1_WINS" && userId === player1.id) resultClass = "preset-filled-success-500";
     else if (outcome === "PLAYER2_WINS" && userId === player2.id) resultClass = "preset-filled-success-500";
     else if ((outcome === "PLAYER1_WINS" && userId === player2.id) || (outcome === "PLAYER2_WINS" && userId === player1.id)) resultClass = "preset-filled-error-500";
-    else if (outcome === "DRAW") resultClass = "preset-filled-surface-200-800";
+    else if (outcome === "DRAW") resultClass = "preset-filled-warning-500";
   } else {
     if (outcome === "PLAYER1_WINS") resultClass = "preset-filled-success-500";
     else if (outcome === "PLAYER2_WINS") resultClass = "preset-filled-error-500";
-    else if (outcome === "DRAW") resultClass = "preset-filled-surface-200-800";
+    else if (outcome === "DRAW") resultClass = "preset-filled-warning-500";
   }
 
   const player1Class = userId === player1.id ? "underline font-semibold" : "font-semibold";
