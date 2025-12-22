@@ -33,7 +33,7 @@ const LoginPage: React.FC = () => {
             if (!response.ok) {
           throw new Error("Authentication failed");
             }
-            window.location.href = "/table";
+            window.location.reload();
           })
           .catch(() => {
             alert("Login Failed");
