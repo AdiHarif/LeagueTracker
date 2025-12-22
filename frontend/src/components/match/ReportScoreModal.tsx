@@ -23,6 +23,7 @@ const ReportScoreModal: React.FC<ReportScoreModalProps> = ({
 }) => {
   const [scores, setScores] = useState({ score1: 0, score2: 0 });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
 
   const updateScore = (player: 'score1' | 'score2', delta: number) => {
     setScores((prev) => ({
@@ -73,6 +74,31 @@ const ReportScoreModal: React.FC<ReportScoreModalProps> = ({
     );
   }
 
+  if (showConfirm) {
+    return (
+      <ScoreModalWrapper title="Confirm Score">
+        <p className="text-center mb-6">
+          Are you sure you want to report this score?<br />
+          <strong>{player1.name} {scores.score1} - {scores.score2} {player2.name}</strong>
+        </p>
+        <div className="flex gap-4">
+          <button
+            onClick={() => setShowConfirm(false)}
+            className="btn preset-filled-surface-500 flex-1 py-2 font-semibold"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleSubmit}
+            className="btn preset-filled-success-500 flex-1 py-2 font-semibold"
+          >
+            Confirm
+          </button>
+        </div>
+      </ScoreModalWrapper>
+    );
+  }
+
   return (
     <ScoreModalWrapper title="Report Match Score">
       {/* Score Controls */}
@@ -89,7 +115,14 @@ const ReportScoreModal: React.FC<ReportScoreModalProps> = ({
 
       {/* Submit Button */}
       <button
-        onClick={handleSubmit}
+        onClick={() => {
+          const validation = validateScores(scores.score1, scores.score2);
+          if (!validation.isValid) {
+            alert(validation.error);
+            return;
+          }
+          setShowConfirm(true);
+        }}
         disabled={isSubmitting}
         className="btn preset-filled-success-500 flex-1 py-2 font-semibold"
       >

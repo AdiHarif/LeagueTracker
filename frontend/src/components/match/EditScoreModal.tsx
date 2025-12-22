@@ -29,6 +29,7 @@ const EditScoreModal: React.FC<EditScoreModalProps> = ({
   const [scores, setScores] = useState({ score1: currentScore1, score2: currentScore2 });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showUpdateConfirm, setShowUpdateConfirm] = useState(false);
 
   const updateScore = (player: 'score1' | 'score2', delta: number) => {
     setScores((prev) => ({
@@ -102,6 +103,31 @@ const EditScoreModal: React.FC<EditScoreModalProps> = ({
     );
   }
 
+  if (showUpdateConfirm) {
+    return (
+      <ScoreModalWrapper title="Confirm Update">
+        <p className="text-center mb-6">
+          Are you sure you want to update this score?<br />
+          <strong>{player1.name} {scores.score1} - {scores.score2} {player2.name}</strong>
+        </p>
+        <div className="flex gap-4">
+          <button
+            onClick={() => setShowUpdateConfirm(false)}
+            className="btn preset-filled-surface-500 flex-1 py-2 font-semibold"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleUpdate}
+            className="btn preset-filled-success-500 flex-1 py-2 font-semibold"
+          >
+            Update Score
+          </button>
+        </div>
+      </ScoreModalWrapper>
+    );
+  }
+
   if (showDeleteConfirm) {
     return (
       <ScoreModalWrapper title="Confirm Delete">
@@ -143,7 +169,14 @@ const EditScoreModal: React.FC<EditScoreModalProps> = ({
       {/* Action Buttons */}
       <div className="flex gap-4">
         <button
-          onClick={handleUpdate}
+          onClick={() => {
+            const validation = validateScores(scores.score1, scores.score2);
+            if (!validation.isValid) {
+              alert(validation.error);
+              return;
+            }
+            setShowUpdateConfirm(true);
+          }}
           disabled={isSubmitting}
           className="btn preset-filled-success-500 flex-1 py-2 font-semibold"
         >
