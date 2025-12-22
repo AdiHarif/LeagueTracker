@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { ChevronUp, ChevronDown } from "lucide-react";
 import LoadingSpinner from "../common/LoadingSpinner";
 
 interface PlayerInfo {
@@ -13,23 +14,75 @@ interface ReportScoreModalProps {
   onSuccess: () => void;
 }
 
+interface ScoreControlProps {
+  playerName: string;
+  score: number;
+  otherScore: number;
+  onIncrement: () => void;
+  onDecrement: () => void;
+}
+
+const ScoreControl: React.FC<ScoreControlProps> = ({
+  playerName,
+  score,
+  otherScore,
+  onIncrement,
+  onDecrement,
+}) => {
+  const canIncrement = score < 2 && score + otherScore < 3;
+  const canDecrement = score > 0;
+
+  return (
+    <div className="flex flex-col items-center gap-1">
+      <label className="text-sm font-semibold text-center">{playerName}</label>
+      <button
+        onClick={onIncrement}
+        disabled={!canIncrement}
+        className="btn preset-filled-surface-500 w-16 h-10 text-2xl font-bold disabled:opacity-30"
+        aria-label={`Increment ${playerName} score`}
+      >
+        <ChevronUp size={28} strokeWidth={3} />
+      </button>
+      <div className="text-4xl font-bold w-16 h-16 flex items-center justify-center">
+        {score}
+      </div>
+      <button
+        onClick={onDecrement}
+        disabled={!canDecrement}
+        className="btn preset-filled-surface-500 w-16 h-10 text-2xl font-bold disabled:opacity-30"
+        aria-label={`Decrement ${playerName} score`}
+      >
+        <ChevronDown size={28} strokeWidth={3} />
+      </button>
+    </div>
+  );
+};
+
 const ReportScoreModal: React.FC<ReportScoreModalProps> = ({
   matchId,
   player1,
   player2,
   onSuccess,
 }) => {
-  const [newScore1, setNewScore1] = useState<number>(0);
-  const [newScore2, setNewScore2] = useState<number>(0);
+  const [scores, setScores] = useState({ score1: 0, score2: 0 });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const updateScore = (player: 'score1' | 'score2', delta: number) => {
+    setScores((prev) => ({
+      ...prev,
+      [player]: Math.max(0, prev[player] + delta),
+    }));
+  };
+
   const handleSubmit = async () => {
+    const { score1, score2 } = scores;
+
     // Validation
-    if (newScore1 < 0 || newScore2 < 0) {
+    if (score1 < 0 || score2 < 0) {
       alert("Scores must be non-negative");
       return;
     }
-    if (newScore1 + newScore2 > 3) {
+    if (score1 + score2 > 3) {
       alert("Total games cannot exceed 3 (best of 3)");
       return;
     }
@@ -40,7 +93,7 @@ const ReportScoreModal: React.FC<ReportScoreModalProps> = ({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ score1: newScore1, score2: newScore2 }),
+        body: JSON.stringify({ score1, score2 }),
       });
 
       if (!response.ok) {
@@ -60,41 +113,37 @@ const ReportScoreModal: React.FC<ReportScoreModalProps> = ({
 
   if (isSubmitting) {
     return (
-      <div className="card preset-filled-surface-200-800 p-6 w-full max-h-[33vh] shadow-2xl flex flex-col overflow-auto z-50">
+      <div className="card preset-filled-surface-200-800 p-6 w-[calc(100vw-0.5rem)] md:max-w-2xl shadow-2xl flex flex-col z-50">
         <LoadingSpinner size="lg" message="Submitting score..." />
       </div>
     );
   }
 
   return (
-    <div className="card preset-filled-surface-200-800 p-6 w-full max-h-[33vh] shadow-2xl flex flex-col overflow-auto z-50">
+    <div className="card preset-filled-surface-200-800 p-6 w-[calc(100vw-0.5rem)] md:max-w-2xl shadow-2xl flex flex-col z-50">
       <h3 className="text-xl font-bold mb-4 text-center">Report Match Score</h3>
 
-      {/* Score Inputs */}
-      <div className="flex items-center justify-center gap-4 mb-6">
-        <div className="flex flex-col items-center">
-          <label className="text-sm mb-2 font-semibold">{player1.name}</label>
-          <input
-            type="number"
-            min="0"
-            max="2"
-            value={newScore1}
-            onChange={(e) => setNewScore1(parseInt(e.target.value) || 0)}
-            className="input w-20 h-20 text-center text-2xl font-bold"
-          />
+      {/* Score Controls */}
+      <div className="flex items-start justify-center gap-6 mb-6">
+        <ScoreControl
+          playerName={player1.name}
+          score={scores.score1}
+          otherScore={scores.score2}
+          onIncrement={() => updateScore('score1', 1)}
+          onDecrement={() => updateScore('score1', -1)}
+        />
+
+        <div className="text-3xl font-bold flex items-center" style={{ marginTop: '67px', height: '64px' }}>
+          -
         </div>
-        <span className="text-3xl font-bold mt-6">-</span>
-        <div className="flex flex-col items-center">
-          <label className="text-sm mb-2 font-semibold">{player2.name}</label>
-          <input
-            type="number"
-            min="0"
-            max="2"
-            value={newScore2}
-            onChange={(e) => setNewScore2(parseInt(e.target.value) || 0)}
-            className="input w-20 h-20 text-center text-2xl font-bold"
-          />
-        </div>
+
+        <ScoreControl
+          playerName={player2.name}
+          score={scores.score2}
+          otherScore={scores.score1}
+          onIncrement={() => updateScore('score2', 1)}
+          onDecrement={() => updateScore('score2', -1)}
+        />
       </div>
 
       {/* Submit Button */}
