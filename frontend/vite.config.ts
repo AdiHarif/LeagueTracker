@@ -9,4 +9,5 @@ export default defineConfig({
 		tailwindcss(),
 		react() // <-- Must come after Tailwind
 	],
+	publicDir: 'public',
 });
