@@ -1,7 +1,9 @@
 import React from "react";
 import { Dialog, Portal } from "@skeletonlabs/skeleton-react";
-import { SquarePen } from "lucide-react";
+import { NotebookPen, Settings } from "lucide-react";
 import ReportScoreModal from "./ReportScoreModal";
+import EditScoreModal from "./EditScoreModal";
+import type { UserPrivileges } from "../../contexts/UserContextDefinition";
 
 interface PlayerInfo {
   id: number;
@@ -17,10 +19,24 @@ interface MatchResultProps {
   outcome: string;
   date?: string;
   userId?: number;
+  userPrivileges?: UserPrivileges;
+  leagueOwnerId?: number;
   onScoreSubmit?: () => void;
 }
 
-const MatchResult: React.FC<MatchResultProps> = ({ id, player1, player2, score1, score2, outcome, date, userId, onScoreSubmit }) => {
+const MatchResult: React.FC<MatchResultProps> = ({ 
+  id, 
+  player1, 
+  player2, 
+  score1, 
+  score2, 
+  outcome, 
+  date, 
+  userId, 
+  userPrivileges,
+  leagueOwnerId,
+  onScoreSubmit 
+}) => {
   let resultClass = "preset-filled-surface-200-800";
   if (userId) {
     if (outcome === "PLAYER1_WINS" && userId === player1.id) resultClass = "preset-filled-success-500";
@@ -38,7 +54,18 @@ const MatchResult: React.FC<MatchResultProps> = ({ id, player1, player2, score1,
 
   const isPlayerInMatch = userId === player1.id || userId === player2.id;
   const hasNoScore = score1 === null || score1 === undefined || score2 === null || score2 === undefined;
+  const hasScore = !hasNoScore;
+  
+  // Determine if user is admin or league owner
+  const isAdmin = userPrivileges === 'ADMIN';
+  const isLeagueOwner = leagueOwnerId !== undefined && userId === leagueOwnerId;
+  const isAdminOrOwner = isAdmin || isLeagueOwner;
+
+  // Players can report scores for their own matches (if no score exists)
   const canReport = isPlayerInMatch && hasNoScore && onScoreSubmit;
+  
+  // Admins and league owners can edit any match score (if score exists)
+  const canEdit = isAdminOrOwner && hasScore && onScoreSubmit;
 
   const handleSuccess = () => {
     if (onScoreSubmit) {
@@ -76,7 +103,7 @@ const MatchResult: React.FC<MatchResultProps> = ({ id, player1, player2, score1,
               title="Report Score"
               aria-label="Report Score"
             >
-              <SquarePen />
+              <NotebookPen />
             </button>
           </Dialog.Trigger>
 
@@ -88,6 +115,37 @@ const MatchResult: React.FC<MatchResultProps> = ({ id, player1, player2, score1,
                   matchId={id}
                   player1={player1}
                   player2={player2}
+                  onSuccess={handleSuccess}
+                />
+              </Dialog.Content>
+            </Dialog.Positioner>
+          </Portal>
+        </Dialog>
+      )}
+
+      {/* Edit Score Icon Button (Admin/Owner only) */}
+      {canEdit && (
+        <Dialog>
+          <Dialog.Trigger>
+            <button
+              className="absolute top-2 right-2 btn-icon btn-sm hover:preset-filled-warning-500 opacity-60 hover:opacity-100 transition-opacity"
+              title="Edit Score (Admin/Owner)"
+              aria-label="Edit Score"
+            >
+              <Settings />
+            </button>
+          </Dialog.Trigger>
+
+          <Portal>
+            <Dialog.Backdrop className="fixed inset-0 z-50 bg-surface-50-950/70" />
+            <Dialog.Positioner className="fixed inset-0 z-50 flex justify-center items-center p-4">
+              <Dialog.Content>
+                <EditScoreModal
+                  matchId={id}
+                  player1={player1}
+                  player2={player2}
+                  currentScore1={score1!}
+                  currentScore2={score2!}
                   onSuccess={handleSuccess}
                 />
               </Dialog.Content>

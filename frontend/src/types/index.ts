@@ -28,6 +28,10 @@ export interface Standing {
 export interface League {
   id: number;
   name: string;
+  status?: string;
+  createdAt?: string;
+  startDate?: string | null;
+  ownerId: number;
 }
 
 export interface LeagueData {

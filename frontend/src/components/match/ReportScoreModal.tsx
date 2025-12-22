@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import { ChevronUp, ChevronDown } from "lucide-react";
 import LoadingSpinner from "../common/LoadingSpinner";
+import { ScoreDisplay, ScoreModalWrapper } from "./ScoreModalComponents";
+import { validateScores } from "../../utils/scoreValidation";
 
 interface PlayerInfo {
   id: number;
@@ -13,50 +14,6 @@ interface ReportScoreModalProps {
   player2: PlayerInfo;
   onSuccess: () => void;
 }
-
-interface ScoreControlProps {
-  playerName: string;
-  score: number;
-  otherScore: number;
-  onIncrement: () => void;
-  onDecrement: () => void;
-}
-
-const ScoreControl: React.FC<ScoreControlProps> = ({
-  playerName,
-  score,
-  otherScore,
-  onIncrement,
-  onDecrement,
-}) => {
-  const canIncrement = score < 2 && score + otherScore < 3;
-  const canDecrement = score > 0;
-
-  return (
-    <div className="flex flex-col items-center gap-1">
-      <label className="text-sm font-semibold text-center">{playerName}</label>
-      <button
-        onClick={onIncrement}
-        disabled={!canIncrement}
-        className="btn preset-filled-surface-500 w-16 h-10 text-2xl font-bold disabled:opacity-30"
-        aria-label={`Increment ${playerName} score`}
-      >
-        <ChevronUp size={28} strokeWidth={3} />
-      </button>
-      <div className="text-4xl font-bold w-16 h-16 flex items-center justify-center">
-        {score}
-      </div>
-      <button
-        onClick={onDecrement}
-        disabled={!canDecrement}
-        className="btn preset-filled-surface-500 w-16 h-10 text-2xl font-bold disabled:opacity-30"
-        aria-label={`Decrement ${playerName} score`}
-      >
-        <ChevronDown size={28} strokeWidth={3} />
-      </button>
-    </div>
-  );
-};
 
 const ReportScoreModal: React.FC<ReportScoreModalProps> = ({
   matchId,
@@ -78,12 +35,9 @@ const ReportScoreModal: React.FC<ReportScoreModalProps> = ({
     const { score1, score2 } = scores;
 
     // Validation
-    if (score1 < 0 || score2 < 0) {
-      alert("Scores must be non-negative");
-      return;
-    }
-    if (score1 + score2 > 3) {
-      alert("Total games cannot exceed 3 (best of 3)");
+    const validation = validateScores(score1, score2);
+    if (!validation.isValid) {
+      alert(validation.error);
       return;
     }
 
@@ -113,48 +67,35 @@ const ReportScoreModal: React.FC<ReportScoreModalProps> = ({
 
   if (isSubmitting) {
     return (
-      <div className="card preset-filled-surface-200-800 p-6 w-[calc(100vw-0.5rem)] md:max-w-2xl shadow-2xl flex flex-col z-50">
+      <ScoreModalWrapper title="Report Match Score">
         <LoadingSpinner size="lg" message="Submitting score..." />
-      </div>
+      </ScoreModalWrapper>
     );
   }
 
   return (
-    <div className="card preset-filled-surface-200-800 p-6 w-[calc(100vw-0.5rem)] md:max-w-2xl shadow-2xl flex flex-col z-50">
-      <h3 className="text-xl font-bold mb-4 text-center">Report Match Score</h3>
-
+    <ScoreModalWrapper title="Report Match Score">
       {/* Score Controls */}
-      <div className="flex items-start justify-center gap-6 mb-6">
-        <ScoreControl
-          playerName={player1.name}
-          score={scores.score1}
-          otherScore={scores.score2}
-          onIncrement={() => updateScore('score1', 1)}
-          onDecrement={() => updateScore('score1', -1)}
-        />
-
-        <div className="text-3xl font-bold flex items-center" style={{ marginTop: '67px', height: '64px' }}>
-          -
-        </div>
-
-        <ScoreControl
-          playerName={player2.name}
-          score={scores.score2}
-          otherScore={scores.score1}
-          onIncrement={() => updateScore('score2', 1)}
-          onDecrement={() => updateScore('score2', -1)}
-        />
-      </div>
+      <ScoreDisplay
+        player1Name={player1.name}
+        player2Name={player2.name}
+        score1={scores.score1}
+        score2={scores.score2}
+        onScore1Increment={() => updateScore('score1', 1)}
+        onScore1Decrement={() => updateScore('score1', -1)}
+        onScore2Increment={() => updateScore('score2', 1)}
+        onScore2Decrement={() => updateScore('score2', -1)}
+      />
 
       {/* Submit Button */}
-        <button
-          onClick={handleSubmit}
-          disabled={isSubmitting}
-          className="btn preset-filled-success-500 flex-1 py-2 font-semibold"
-        >
-          {isSubmitting ? "Submitting..." : "Submit"}
-        </button>
-      </div>
+      <button
+        onClick={handleSubmit}
+        disabled={isSubmitting}
+        className="btn preset-filled-success-500 flex-1 py-2 font-semibold"
+      >
+        {isSubmitting ? "Submitting..." : "Submit"}
+      </button>
+    </ScoreModalWrapper>
   );
 };
 

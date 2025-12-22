@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Tabs } from "@skeletonlabs/skeleton-react";
 import MatchResult from "../match/MatchResult";
 import { useUser } from "../../hooks/useUser";
+import { usePrivileges } from "../../hooks/usePrivileges";
 import LoadingSpinner from "../common/LoadingSpinner";
 import type { LeagueData, Standing, Match } from "../../types";
 
@@ -10,6 +11,7 @@ const LeagueResultsTabs: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { user } = useUser();
+  const privileges = usePrivileges(user?.id);
 
   const fetchLeague = () => {
     fetch(`${import.meta.env.VITE_BACKEND_URL}/leagues/1`, { credentials: "include" })
@@ -75,7 +77,7 @@ const LeagueResultsTabs: React.FC = () => {
                 {standings.map((player: Standing, idx: number) => {
                   const isCurrentUser = user?.id === player.id;
                   const nameClass = isCurrentUser ? "underline font-semibold" : "font-semibold";
-                  
+
                   return (
                     <tr
                       key={player.id}
@@ -107,6 +109,8 @@ const LeagueResultsTabs: React.FC = () => {
                 outcome={match.outcome}
                 date={match.date}
                 userId={user?.id}
+                userPrivileges={privileges ?? undefined}
+                leagueOwnerId={league.ownerId}
                 onScoreSubmit={fetchLeague}
               />
             ))}

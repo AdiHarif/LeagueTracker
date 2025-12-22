@@ -2,7 +2,7 @@ import { Router } from 'express';
 import type { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import { config, googleClient, prisma } from '../config.js';
-import { requireAuth } from '../middleware.js';
+import { requireAuth, attachPrivileges } from '../middleware.js';
 
 const router = Router();
 
@@ -75,6 +75,17 @@ router.get('/callback', async (req: Request, res: Response) => {
  */
 router.get('/check', requireAuth, (req: Request, res: Response) => {
   res.json({ authenticated: true, user: req.user });
+});
+
+/**
+ * GET /auth/check/privileges
+ * Get user privileges from database
+ * Use this endpoint when you need to check admin status or other privilege-based features
+ */
+router.get('/check/privileges', requireAuth, attachPrivileges, (req: Request, res: Response) => {
+  res.json({
+    privileges: req.user!.privileges,
+  });
 });
 
 /**

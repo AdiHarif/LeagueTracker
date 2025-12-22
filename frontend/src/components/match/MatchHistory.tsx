@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import MatchResult from "./MatchResult";
 import { useUser } from "../../hooks/useUser";
+import { usePrivileges } from "../../hooks/usePrivileges";
 import LoadingSpinner from "../common/LoadingSpinner";
 import type { Match } from "../../types";
 
@@ -9,6 +10,7 @@ const MatchHistory: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { user } = useUser();
+  const privileges = usePrivileges(user?.id);
 
   const fetchMatches = () => {
     fetch(`${import.meta.env.VITE_BACKEND_URL}/matches/my-matches`, { credentials: "include" })
@@ -58,7 +60,13 @@ const MatchHistory: React.FC = () => {
         {sortedMatches.length === 0 && <div className="text-center">No matches found.</div>}
         <div className="flex flex-col gap-4 items-center">
           {sortedMatches.map(match => (
-            <MatchResult {...match} key={match.id} userId={user?.id} onScoreSubmit={fetchMatches} />
+            <MatchResult 
+              {...match} 
+              key={match.id} 
+              userId={user?.id} 
+              userPrivileges={privileges ?? undefined}
+              onScoreSubmit={fetchMatches} 
+            />
           ))}
         </div>
       </div>
