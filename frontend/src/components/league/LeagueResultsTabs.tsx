@@ -72,19 +72,24 @@ const LeagueResultsTabs: React.FC = () => {
                 </tr>
               </thead>
                 <tbody>
-                {standings.map((player: Standing, idx: number) => (
-                  <tr
-                  key={player.name}
-                  className={`${idx === 0 ? "preset-filled-success-100-900 font-bold" : ""} border-b border-surface-50-950 last:border-b-0`}
-                  >
-                  <td className="p-3 md:p-5 font-semibold text-sm md:text-lg sticky left-0 z-10 whitespace-nowrap">{player.name}</td>
-                  <td className="p-3 md:p-5 text-sm md:text-lg">{player.gamesPlayed}</td>
-                  <td className="p-3 md:p-5 text-sm md:text-lg">{player.wins}</td>
-                  <td className="p-3 md:p-5 text-sm md:text-lg">{player.draws}</td>
-                  <td className="p-3 md:p-5 text-sm md:text-lg">{player.losses}</td>
-                  <td className="p-3 md:p-5 text-sm md:text-lg">{player.points}</td>
-                  </tr>
-                ))}
+                {standings.map((player: Standing, idx: number) => {
+                  const isCurrentUser = user?.id === player.id;
+                  const nameClass = isCurrentUser ? "underline font-semibold" : "font-semibold";
+                  
+                  return (
+                    <tr
+                      key={player.id}
+                      className={`${idx === 0 ? "preset-filled-success-100-900 font-bold" : ""} border-b border-surface-50-950 last:border-b-0`}
+                    >
+                      <td className={`p-3 md:p-5 ${nameClass} text-sm md:text-lg sticky left-0 z-10 whitespace-nowrap`}>{player.name}</td>
+                      <td className="p-3 md:p-5 text-sm md:text-lg">{player.gamesPlayed}</td>
+                      <td className="p-3 md:p-5 text-sm md:text-lg">{player.wins}</td>
+                      <td className="p-3 md:p-5 text-sm md:text-lg">{player.draws}</td>
+                      <td className="p-3 md:p-5 text-sm md:text-lg">{player.losses}</td>
+                      <td className="p-3 md:p-5 text-sm md:text-lg">{player.points}</td>
+                    </tr>
+                  );
+                })}
                 </tbody>
             </table>
           </div>

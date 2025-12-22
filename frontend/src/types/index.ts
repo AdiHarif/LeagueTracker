@@ -16,6 +16,7 @@ export interface Match {
 }
 
 export interface Standing {
+  id: number;
   name: string;
   gamesPlayed: number;
   wins: number;
