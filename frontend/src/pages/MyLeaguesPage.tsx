@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useUser } from "../hooks/useUser";
+import { useLastLeague } from "../hooks/useLastLeague";
 import LoadingSpinner from "../components/common/LoadingSpinner";
 import LeagueCard from "../components/league/LeagueCard";
 import type { League } from "../types";
@@ -10,6 +12,8 @@ const MyLeaguesPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { user } = useUser();
+  const navigate = useNavigate();
+  const { lastLeagueId } = useLastLeague();
 
   useEffect(() => {
     const fetchLeagues = async () => {
@@ -24,6 +28,16 @@ const MyLeaguesPage: React.FC = () => {
 
         const data = await res.json();
         setLeagues(data);
+        
+        // If there's a last viewed league and we have leagues, redirect to it
+        if (lastLeagueId && data.length > 0) {
+          // Check if the last league ID exists in the current leagues
+          const leagueExists = data.some((league: League) => league.id.toString() === lastLeagueId);
+          if (leagueExists) {
+            navigate(`/leagues/${lastLeagueId}`, { replace: true });
+            return;
+          }
+        }
       } catch (err) {
         setError(err instanceof Error ? err.message : "Unknown error");
       } finally {
@@ -32,7 +46,7 @@ const MyLeaguesPage: React.FC = () => {
     };
 
     fetchLeagues();
-  }, []);
+  }, [lastLeagueId, navigate]);
 
   if (loading) {
     return (

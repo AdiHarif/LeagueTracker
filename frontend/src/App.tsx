@@ -8,6 +8,7 @@ import AppLayout from './components/common/AppLayout';
 import { ProtectedRoute } from './routes/ProtectedRoute';
 import { UserProvider } from './contexts/UserContext';
 import { AppBarProvider } from './contexts/AppBarContext';
+import { LastLeagueProvider } from './contexts/LastLeagueContext';
 import './styles/App.css';
 import './styles/presets.css';
 import ProfilePage from './pages/ProfilePage';
@@ -36,15 +37,17 @@ function App() {
             path="*"
             element={
               <ProtectedRoute>
-                <AppLayout>
-                  <Routes>
-                    <Route path="/leagues" element={<MyLeaguesPage />} />
-                    <Route path="/leagues/:id" element={<LeagueResultsTabs />} />
-                    <Route path="/history" element={<MatchHistory />} />
-                    <Route path="/profile" element={<ProfilePage />} />
-                    <Route path="*" element={<Navigate to="/leagues" replace />} />
-                  </Routes>
-                </AppLayout>
+                <LastLeagueProvider>
+                  <AppLayout>
+                    <Routes>
+                      <Route path="/leagues" element={<MyLeaguesPage />} />
+                      <Route path="/leagues/:id" element={<LeagueResultsTabs />} />
+                      <Route path="/history" element={<MatchHistory />} />
+                      <Route path="/profile" element={<ProfilePage />} />
+                      <Route path="*" element={<Navigate to="/leagues" replace />} />
+                    </Routes>
+                  </AppLayout>
+                </LastLeagueProvider>
               </ProtectedRoute>
             }
           />

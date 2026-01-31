@@ -5,6 +5,7 @@ import MatchResult from "../match/MatchResult";
 import { useUser } from "../../hooks/useUser";
 import { usePrivileges } from "../../hooks/usePrivileges";
 import { useAppBar } from "../../hooks/useAppBar";
+import { useLastLeague } from "../../hooks/useLastLeague";
 import LoadingSpinner from "../common/LoadingSpinner";
 import type { LeagueData, Standing, Match } from "../../types";
 
@@ -16,6 +17,7 @@ const LeagueResultsTabs: React.FC = () => {
   const { user } = useUser();
   const privileges = usePrivileges(user?.id);
   const { setTitle } = useAppBar();
+  const { setLastLeagueId } = useLastLeague();
 
   const fetchLeague = useCallback(async () => {
     if (!id) {
@@ -43,8 +45,12 @@ const LeagueResultsTabs: React.FC = () => {
   useEffect(() => {
     setTitle(""); // Clear title while loading
     fetchLeague();
+    // Save the current league ID
+    if (id) {
+      setLastLeagueId(id);
+    }
     return () => setTitle(""); // Clear on unmount
-  }, [fetchLeague, setTitle]);
+  }, [fetchLeague, setTitle, id, setLastLeagueId]);
 
   if (loading) return (
     <div className="flex flex-col items-center justify-center min-h-screen">
