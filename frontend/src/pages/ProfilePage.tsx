@@ -3,7 +3,7 @@ import { useUser } from "../hooks/useUser";
 import LoadingSpinner from "../components/common/LoadingSpinner";
 
 const ProfilePage: React.FC = () => {
-  const { user } = useUser();
+  const { user, loading } = useUser();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const handleLogout = async () => {
@@ -15,14 +15,18 @@ const ProfilePage: React.FC = () => {
     window.location.reload();
   };
 
-  if (isLoggingOut) {
-    return <LoadingSpinner fullScreen message="Logging out..." />;
+  if (loading || isLoggingOut) {
+    return <LoadingSpinner fullScreen message={isLoggingOut ? "Logging out..." : "Loading profile..."} />;
+  }
+
+  if (!user) {
+    return null; // This shouldn't happen due to ProtectedRoute, but added for safety
   }
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen px-4">
       <div className="preset-filled-surface-200-800 rounded-xl shadow-lg p-6 md:p-8 w-full max-w-md">
-        <div className="text-base md:text-lg mb-6 text-center wrap-break-word">{user!.name}</div>
+        <div className="text-base md:text-lg mb-6 text-center wrap-break-word">{user.name}</div>
         <button
           className="btn btn-lg btn-error w-full"
           onClick={handleLogout}
