@@ -58,6 +58,21 @@ const LeagueResultsTabs: React.FC = () => {
 
   const { league, matches, standings } = leagueData;
 
+  // Group matches by round
+  const matchesByRound = matches.reduce((acc, match) => {
+    const round = match.round;
+    if (!acc[round]) {
+      acc[round] = [];
+    }
+    acc[round].push(match);
+    return acc;
+  }, {} as Record<number, Match[]>);
+
+  // Get sorted round numbers
+  const sortedRounds = Object.keys(matchesByRound)
+    .map(Number)
+    .sort((a, b) => a - b);
+
   return (
     <div className="w-full preset-glass-neutral rounded-xl md:rounded-2xl p-3 md:p-6">
       <Tabs defaultValue={"standings"}>
@@ -109,22 +124,33 @@ const LeagueResultsTabs: React.FC = () => {
           </div>
         </Tabs.Content>
         <Tabs.Content value="matches">
-            <div className="flex flex-col gap-4 items-center snap-x scroll-px-4 snap-mandatory scroll-smooth overflow-y-auto h-full">
-            {matches.map((match: Match) => (
-              <MatchResult
-                key={match.id}
-                id={match.id}
-                player1={match.player1}
-                player2={match.player2}
-                score1={match.score1}
-                score2={match.score2}
-                outcome={match.outcome}
-                date={match.date}
-                userId={user?.id}
-                userPrivileges={privileges ?? undefined}
-                leagueOwnerId={league.ownerId}
-                onScoreSubmit={fetchLeague}
-              />
+            <div className="flex flex-col gap-6 items-center snap-x scroll-px-4 snap-mandatory scroll-smooth overflow-y-auto h-full">
+            {sortedRounds.map((round) => (
+              <div key={round} className="w-full flex flex-col gap-4 items-center">
+                <div className="w-full flex items-center justify-center">
+                  <div className="flex-1 h-px bg-surface-300-700 opacity-50"></div>
+                  <span className="px-4 text-sm font-medium opacity-80 whitespace-nowrap">
+                    Round {round}
+                  </span>
+                  <div className="flex-1 h-px bg-surface-300-700 opacity-50"></div>
+                </div>
+                {matchesByRound[round].map((match: Match) => (
+                  <MatchResult
+                    key={match.id}
+                    id={match.id}
+                    player1={match.player1}
+                    player2={match.player2}
+                    score1={match.score1}
+                    score2={match.score2}
+                    outcome={match.outcome}
+                    date={match.date}
+                    userId={user?.id}
+                    userPrivileges={privileges ?? undefined}
+                    leagueOwnerId={league.ownerId}
+                    onScoreSubmit={fetchLeague}
+                  />
+                ))}
+              </div>
             ))}
             </div>
         </Tabs.Content>

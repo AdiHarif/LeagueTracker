@@ -13,6 +13,7 @@ export interface Match {
   score2?: number | null;
   outcome: string;
   date?: string;
+  round: number;
 }
 
 export interface Standing {
