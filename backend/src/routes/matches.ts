@@ -66,9 +66,9 @@ router.get('/my-matches', async (req: Request, res: Response) => {
 
 /**
  * POST /matches/:id/score
- * Report score for a match (only if you're a player in that match)
+ * Report score for a match (players in the match or admins/league owners)
  */
-router.post('/:id/score', async (req: Request, res: Response) => {
+router.post('/:id/score', attachPrivileges, async (req: Request, res: Response) => {
   const matchId = parseInt(req.params.id!, 10);
   const { score1, score2 } = req.body;
 
@@ -90,9 +90,16 @@ router.post('/:id/score', async (req: Request, res: Response) => {
     return res.status(404).json({ error: 'Match not found' });
   }
 
-  // Check if user is one of the players
-  if (match.player1Id !== req.user!.id && match.player2Id !== req.user!.id) {
-    return res.status(403).json({ error: 'Forbidden: You are not a player in this match' });
+  // Check if user is one of the players OR admin/league owner
+  const isPlayerInMatch = match.player1Id === req.user!.id || match.player2Id === req.user!.id;
+  const hasPermission = isPlayerInMatch || await isAdminOrLeagueOwner(
+    req.user!.id,
+    req.user!.privileges!,
+    match.leagueId
+  );
+
+  if (!hasPermission) {
+    return res.status(403).json({ error: 'Forbidden: You are not authorized to report this match score' });
   }
 
   // Check if match already has a score (critical section)

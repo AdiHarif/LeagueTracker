@@ -58,7 +58,8 @@ const MatchResult: React.FC<MatchResultProps> = ({
   const isAdminOrOwner = isAdmin || isLeagueOwner;
 
   // Players can report scores for their own matches (if no score exists)
-  const canReport = isPlayerInMatch && hasNoScore && onScoreSubmit;
+  // Admins and league owners can also report scores for any match (if no score exists)
+  const canReport = (isPlayerInMatch || isAdminOrOwner) && hasNoScore && onScoreSubmit;
   
   // Admins and league owners can edit any match score (if score exists)
   const canEdit = isAdminOrOwner && hasScore && onScoreSubmit;
