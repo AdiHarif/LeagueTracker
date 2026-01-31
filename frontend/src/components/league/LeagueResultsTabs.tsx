@@ -4,6 +4,7 @@ import { Tabs } from "@skeletonlabs/skeleton-react";
 import MatchResult from "../match/MatchResult";
 import { useUser } from "../../hooks/useUser";
 import { usePrivileges } from "../../hooks/usePrivileges";
+import { useAppBar } from "../../hooks/useAppBar";
 import LoadingSpinner from "../common/LoadingSpinner";
 import type { LeagueData, Standing, Match } from "../../types";
 
@@ -14,6 +15,7 @@ const LeagueResultsTabs: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const { user } = useUser();
   const privileges = usePrivileges(user?.id);
+  const { setTitle } = useAppBar();
 
   const fetchLeague = useCallback(async () => {
     if (!id) {
@@ -30,16 +32,19 @@ const LeagueResultsTabs: React.FC = () => {
       if (!res.ok) throw new Error("Failed to fetch league");
       const data = await res.json();
       setLeagueData(data);
+      setTitle(data.league.name);
       setLoading(false);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unknown error");
       setLoading(false);
     }
-  }, [id]);
+  }, [id, setTitle]);
 
   useEffect(() => {
+    setTitle(""); // Clear title while loading
     fetchLeague();
-  }, [fetchLeague]);
+    return () => setTitle(""); // Clear on unmount
+  }, [fetchLeague, setTitle]);
 
   if (loading) return (
     <div className="flex flex-col items-center justify-center min-h-screen">
@@ -55,7 +60,6 @@ const LeagueResultsTabs: React.FC = () => {
 
   return (
     <div className="w-full preset-glass-neutral rounded-xl md:rounded-2xl p-3 md:p-6">
-      <h1 className="text-xl md:text-2xl font-bold mb-4 md:mb-6 text-center">{league.name}</h1>
       <Tabs defaultValue={"standings"}>
         <div className="flex w-full mb-4">
           <Tabs.List className="flex w-full gap-1 md:gap-2">

@@ -1,25 +1,15 @@
 #root {
   width: 100%;
   height: 100%;
-  padding: 0.5rem;
+  padding: 0;
   text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
-/* Responsive padding */
-@media (min-width: 640px) {
-  #root {
-    padding: 1rem;
-  }
-}
-
-@media (min-width: 1024px) {
-  #root {
-    padding: 2rem;
-  }
-}
+/* Responsive padding - removed for edge-to-edge layout */
+/* Padding is now handled per-page/component as needed */
 
 .card {
   padding: 1rem;

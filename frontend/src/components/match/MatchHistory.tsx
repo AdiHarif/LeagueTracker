@@ -56,7 +56,6 @@ const MatchHistory: React.FC = () => {
   return (
     <div className="flex flex-col items-center min-h-screen">
       <div className="w-full preset-glass-neutral rounded-2xl shadow-lg p-6">
-        <h2 className="text-2xl font-bold mb-6 text-center">My Matches</h2>
         {sortedMatches.length === 0 && <div className="text-center">No matches found.</div>}
         <div className="flex flex-col gap-4 items-center">
           {sortedMatches.map(match => (

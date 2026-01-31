@@ -4,9 +4,10 @@ import LoginPage from './pages/LoginPage';
 import MyLeaguesPage from './pages/MyLeaguesPage';
 import LeagueResultsTabs from './components/league/LeagueResultsTabs';
 import MatchHistory from './components/match/MatchHistory';
-import NavigationBar from './components/common/NavigationBar';
+import AppLayout from './components/common/AppLayout';
 import { ProtectedRoute } from './routes/ProtectedRoute';
 import { UserProvider } from './contexts/UserContext';
+import { AppBarProvider } from './contexts/AppBarContext';
 import './styles/App.css';
 import './styles/presets.css';
 import ProfilePage from './pages/ProfilePage';
@@ -28,25 +29,27 @@ function App() {
   }, []);
   return (
     <UserProvider>
-      <Routes>
-        <Route path="/login" element={<LoginPage />} />
-        <Route
-          path="*"
-          element={
-            <ProtectedRoute>
-              <NavigationBar>
-                <Routes>
-                  <Route path="/leagues" element={<MyLeaguesPage />} />
-                  <Route path="/leagues/:id" element={<LeagueResultsTabs />} />
-                  <Route path="/history" element={<MatchHistory />} />
-                  <Route path="/profile" element={<ProfilePage />} />
-                  <Route path="*" element={<Navigate to="/leagues" replace />} />
-                </Routes>
-              </NavigationBar>
-            </ProtectedRoute>
-          }
-        />
-      </Routes>
+      <AppBarProvider>
+        <Routes>
+          <Route path="/login" element={<LoginPage />} />
+          <Route
+            path="*"
+            element={
+              <ProtectedRoute>
+                <AppLayout>
+                  <Routes>
+                    <Route path="/leagues" element={<MyLeaguesPage />} />
+                    <Route path="/leagues/:id" element={<LeagueResultsTabs />} />
+                    <Route path="/history" element={<MatchHistory />} />
+                    <Route path="/profile" element={<ProfilePage />} />
+                    <Route path="*" element={<Navigate to="/leagues" replace />} />
+                  </Routes>
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
+        </Routes>
+      </AppBarProvider>
     </UserProvider>
   );
 }

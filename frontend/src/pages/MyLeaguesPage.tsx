@@ -56,8 +56,6 @@ const MyLeaguesPage: React.FC = () => {
 
   return (
     <div className="w-full preset-glass-neutral rounded-xl md:rounded-2xl p-4 md:p-6">
-      <h1 className="text-xl md:text-2xl font-bold mb-6 text-center">My Leagues</h1>
-
       {leagues.length === 0 ? (
         // Empty State
         <div className="flex flex-col items-center justify-center py-16 preset-filled-surface-200-800 rounded-lg">
