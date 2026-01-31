@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
+import { useParams } from "react-router-dom";
 import { Tabs } from "@skeletonlabs/skeleton-react";
 import MatchResult from "../match/MatchResult";
 import { useUser } from "../../hooks/useUser";
@@ -7,31 +8,38 @@ import LoadingSpinner from "../common/LoadingSpinner";
 import type { LeagueData, Standing, Match } from "../../types";
 
 const LeagueResultsTabs: React.FC = () => {
+  const { id } = useParams<{ id: string }>();
   const [leagueData, setLeagueData] = useState<LeagueData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { user } = useUser();
   const privileges = usePrivileges(user?.id);
 
-  const fetchLeague = () => {
-    fetch(`${import.meta.env.VITE_BACKEND_URL}/leagues/1`, { credentials: "include" })
-      .then((res) => {
-        if (!res.ok) throw new Error("Failed to fetch league");
-        return res.json();
-      })
-      .then((data) => {
-        setLeagueData(data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err.message);
-        setLoading(false);
+  const fetchLeague = useCallback(async () => {
+    if (!id) {
+      setError("No league ID provided");
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/leagues/${id}`, {
+        credentials: "include"
       });
-  };
+      if (!res.ok) throw new Error("Failed to fetch league");
+      const data = await res.json();
+      setLeagueData(data);
+      setLoading(false);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Unknown error");
+      setLoading(false);
+    }
+  }, [id]);
 
   useEffect(() => {
     fetchLeague();
-  }, []);
+  }, [fetchLeague]);
 
   if (loading) return (
     <div className="flex flex-col items-center justify-center min-h-screen">

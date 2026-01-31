@@ -3,7 +3,7 @@ import { Navigation } from "@skeletonlabs/skeleton-react";
 import { Table2, Gamepad2, User } from 'lucide-react';
 
 const navItems = [
-  { label: "League Standings", to: "/table", icon: Table2 },
+  { label: "My Leagues", to: "/leagues", icon: Table2 },
   { label: "My Matches", to: "/history", icon: Gamepad2 },
   { label: "Profile", to: "/profile", icon: User },
 ];

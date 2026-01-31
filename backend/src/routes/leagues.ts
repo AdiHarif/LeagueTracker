@@ -6,6 +6,50 @@ import { calculateStandings } from '../utils/standings.js';
 const router = Router();
 
 /**
+ * GET /leagues
+ * Get all leagues the user is part of (as owner or player)
+ */
+router.get('/', async (req: Request, res: Response) => {
+  const userId = req.user!.id;
+
+  try {
+    // Find all leagues where user is owner or appears in any match
+    const leagues = await prisma.league.findMany({
+      where: {
+        OR: [
+          { ownerId: userId },
+          {
+            matches: {
+              some: {
+                OR: [
+                  { player1Id: userId },
+                  { player2Id: userId }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      select: {
+        id: true,
+        name: true,
+        ownerId: true,
+      },
+      orderBy: {
+        createdAt: 'desc'
+      }
+    });
+
+    res.json(leagues);
+  } catch (err) {
+    res.status(500).json({
+      error: 'Failed to fetch leagues',
+      details: err instanceof Error ? err.message : err
+    });
+  }
+});
+
+/**
  * GET /leagues/:id
  * Get league details including matches and standings
  */

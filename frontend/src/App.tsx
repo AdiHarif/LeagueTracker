@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import LoginPage from './pages/LoginPage';
+import MyLeaguesPage from './pages/MyLeaguesPage';
 import LeagueResultsTabs from './components/league/LeagueResultsTabs';
 import MatchHistory from './components/match/MatchHistory';
 import NavigationBar from './components/common/NavigationBar';
@@ -35,10 +36,11 @@ function App() {
             <ProtectedRoute>
               <NavigationBar>
                 <Routes>
-                  <Route path="/table" element={<LeagueResultsTabs />} />
+                  <Route path="/leagues" element={<MyLeaguesPage />} />
+                  <Route path="/leagues/:id" element={<LeagueResultsTabs />} />
                   <Route path="/history" element={<MatchHistory />} />
                   <Route path="/profile" element={<ProfilePage />} />
-                  <Route path="*" element={<Navigate to="/table" replace />} />
+                  <Route path="*" element={<Navigate to="/leagues" replace />} />
                 </Routes>
               </NavigationBar>
             </ProtectedRoute>
