@@ -25,13 +25,10 @@ type MatchWithPlayers = Match & {
 export function calculateStandings(matches: MatchWithPlayers[]): PlayerStanding[] {
   const standings: Record<number, PlayerStanding> = {};
 
+  // First pass: Initialize all players from all matches (including TBD)
   for (const match of matches) {
-    // Only count matches with both players and a decided outcome
-    if (match.outcome === 'TBD') continue;
-
     const players = [match.player1, match.player2];
 
-    // Initialize player standings if they don't exist
     for (const player of players) {
       if (!player) continue;
 
@@ -46,6 +43,19 @@ export function calculateStandings(matches: MatchWithPlayers[]): PlayerStanding[
           points: 0,
         };
       }
+    }
+  }
+
+  // Second pass: Update standings based on match outcomes
+  for (const match of matches) {
+    // Only count matches with both players and a decided outcome
+    if (match.outcome === 'TBD') continue;
+
+    const players = [match.player1, match.player2];
+
+    // Increment games played for both players
+    for (const player of players) {
+      if (!player) continue;
       standings[player.id]!.gamesPlayed++;
     }
 
