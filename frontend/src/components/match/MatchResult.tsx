@@ -1,6 +1,6 @@
 import React from "react";
 import { Dialog, Portal } from "@skeletonlabs/skeleton-react";
-import { NotebookPen, Settings } from "lucide-react";
+import { NotebookPen, Settings, Home } from "lucide-react";
 import ReportScoreModal from "./ReportScoreModal";
 import EditScoreModal from "./EditScoreModal";
 import type { UserPrivileges } from "../../contexts/UserContextDefinition";
@@ -74,7 +74,10 @@ const MatchResult: React.FC<MatchResultProps> = ({
       className={`card w-full max-w-xl ${resultClass} p-3 md:p-4 text-center flex flex-col justify-center relative`}
     >
       <div className="flex items-center justify-center flex-1 gap-2 md:gap-0">
-        <div className="flex-1 flex justify-end pr-2">
+        <div className="flex-1 flex justify-end pr-2 items-center gap-1">
+          <span title="Home Player">
+            <Home size={14} className="shrink-0" />
+          </span>
           <span className={`${player1Class} text-sm md:text-base truncate`}>{player1.name}</span>
         </div>
         <span className="font-medium min-w-12 md:min-w-16 text-center shrink-0 grow-0 text-sm md:text-base">
