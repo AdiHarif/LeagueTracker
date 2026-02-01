@@ -13,7 +13,7 @@ const MyLeaguesPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const { user } = useUser();
   const navigate = useNavigate();
-  const { lastLeagueId } = useLastLeague();
+  const { lastLeagueId, setLastLeagueId } = useLastLeague();
 
   useEffect(() => {
     const fetchLeagues = async () => {
@@ -46,7 +46,7 @@ const MyLeaguesPage: React.FC = () => {
     };
 
     fetchLeagues();
-  }, [lastLeagueId, navigate]);
+  }, [lastLeagueId, navigate, setLastLeagueId]);
 
   if (loading) {
     return (

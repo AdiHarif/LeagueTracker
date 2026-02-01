@@ -3,11 +3,13 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { AppBar as SkeletonAppBar } from "@skeletonlabs/skeleton-react";
 import { ArrowLeft } from "lucide-react";
 import { useAppBar } from "../../hooks/useAppBar";
+import { useLastLeague } from "../../hooks/useLastLeague";
 
 const AppBar: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { title } = useAppBar();
+  const { setLastLeagueId } = useLastLeague();
 
   const getPageTitle = () => {
     // For league detail pages, only show custom title (empty while loading)
@@ -34,6 +36,7 @@ const AppBar: React.FC = () => {
   const showBackButton = location.pathname.startsWith("/leagues/") && location.pathname !== "/leagues";
 
   const handleBack = () => {
+    setLastLeagueId(null); // Clear the last league ID when going back
     navigate("/leagues");
   };
 
