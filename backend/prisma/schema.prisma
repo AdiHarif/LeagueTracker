@@ -41,6 +41,7 @@ model User {
   leagues    League[]        @relation("LeagueOwner")
   matchesAsPlayer1 Match[]   @relation("Player1Matches")
   matchesAsPlayer2 Match[]   @relation("Player2Matches")
+  leagueMemberships LeagueMember[] @relation("UserLeagues")
 }
 
 model League {
@@ -54,6 +55,7 @@ model League {
   // Relations
   owner       User     @relation("LeagueOwner", fields: [ownerId], references: [id])
   matches     Match[]  @relation("LeagueMatches")
+  members     LeagueMember[] @relation("LeaguePlayers")
 }
 
 model Match {
@@ -71,4 +73,16 @@ model Match {
   league     League   @relation("LeagueMatches", fields: [leagueId], references: [id])
   player1    User     @relation("Player1Matches", fields: [player1Id], references: [id])
   player2    User     @relation("Player2Matches", fields: [player2Id], references: [id])
+}
+
+model LeagueMember {
+  leagueId    Int
+  userId      Int
+  cardPoolUrl String?
+
+  // Relations
+  league      League @relation("LeaguePlayers", fields: [leagueId], references: [id])
+  user        User   @relation("UserLeagues", fields: [userId], references: [id])
+
+  @@id([leagueId, userId])
 }
