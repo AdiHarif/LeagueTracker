@@ -71,6 +71,11 @@ router.get('/:id', async (req: Request, res: Response) => {
             player2: true,
           },
         },
+        members: {
+          include: {
+            user: { select: { id: true, name: true } },
+          },
+        },
       },
     });
 
@@ -92,6 +97,15 @@ router.get('/:id', async (req: Request, res: Response) => {
     // Calculate standings
     const standingsArr = calculateStandings(league.matches);
 
+    // Enrich standings with card pool URLs from league members
+    const cardPoolMap = new Map(
+      league.members.map((member) => [member.user.id, member.cardPoolUrl])
+    );
+    const standingsWithPools = standingsArr.map((standing) => ({
+      ...standing,
+      cardPoolUrl: cardPoolMap.get(standing.id) ?? null,
+    }));
+
     // Sort matches by round ascending
     const sortedMatches = [...league.matches].sort((a, b) => (a.round ?? 0) - (b.round ?? 0));
 
@@ -105,7 +119,7 @@ router.get('/:id', async (req: Request, res: Response) => {
         ownerId: league.ownerId,
       },
       matches: sortedMatches,
-      standings: standingsArr,
+      standings: standingsWithPools,
     });
   } catch (err) {
     res.status(500).json({

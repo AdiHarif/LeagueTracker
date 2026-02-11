@@ -24,6 +24,7 @@ export interface Standing {
   draws: number;
   losses: number;
   points: number;
+  cardPoolUrl?: string | null;
 }
 
 export interface League {

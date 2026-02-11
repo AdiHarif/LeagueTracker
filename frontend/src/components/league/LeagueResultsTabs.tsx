@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import { Tabs } from "@skeletonlabs/skeleton-react";
 import MatchResult from "../match/MatchResult";
+import PlayerMenu from "./PlayerMenu";
 import { useUser } from "../../hooks/useUser";
 import { usePrivileges } from "../../hooks/usePrivileges";
 import { useAppBar } from "../../hooks/useAppBar";
@@ -116,7 +117,15 @@ const LeagueResultsTabs: React.FC = () => {
                       key={player.id}
                       className={`${idx === 0 ? "preset-filled-success-100-900 font-bold" : ""} border-b border-surface-50-950 last:border-b-0`}
                     >
-                      <td className={`p-3 md:p-5 ${nameClass} text-sm md:text-lg sticky left-0 z-10 whitespace-nowrap`}>{player.name}</td>
+                      <td className={`p-3 md:p-5 ${nameClass} text-sm md:text-lg sticky left-0 whitespace-nowrap`}>
+                        <div className="flex items-center">
+                          <div className="w-6 shrink-0">
+                            <PlayerMenu cardPoolUrl={player.cardPoolUrl} />
+                          </div>
+                          <span className="flex-1 text-center">{player.name}</span>
+                          <div className="w-6 shrink-0"></div>
+                        </div>
+                      </td>
                       <td className="p-3 md:p-5 text-sm md:text-lg">{player.gamesPlayed}</td>
                       <td className="p-3 md:p-5 text-sm md:text-lg">{player.wins}</td>
                       <td className="p-3 md:p-5 text-sm md:text-lg">{player.draws}</td>
